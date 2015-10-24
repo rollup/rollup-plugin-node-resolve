@@ -1,6 +1,8 @@
 # rollup-plugin-npm
 
-## experimental, depends on unreleased version of Rollup
+**experimental, depends on unreleased version of Rollup**
+
+Convert CommonJS modules to ES6, so that they can be included in a Rollup bundle.
 
 ## Installation
 
@@ -51,3 +53,8 @@ rollup({
   ]
 }).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );
 ```
+
+
+## License
+
+MIT

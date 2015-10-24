@@ -46,4 +46,24 @@ describe( 'rollup-plugin-commonjs', function () {
 			assert.equal( module.exports, 'It works!' );
 		})
 	});
+
+	it( 'finds a file inside a package directory', function () {
+		return rollup.rollup({
+			entry: 'samples/granular/main.js',
+			plugins: [
+				npm()
+			]
+		}).then( function ( bundle ) {
+			var generated = bundle.generate({
+				format: 'cjs'
+			});
+
+			var fn = new Function ( 'module', generated.code );
+			var module = {};
+
+			fn( module );
+
+			assert.equal( module.exports, '.js' );
+		});
+	});
 });
