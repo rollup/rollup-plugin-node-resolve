@@ -2,7 +2,7 @@
 
 **experimental, depends on unreleased version of Rollup**
 
-Convert CommonJS modules to ES6, so that they can be included in a Rollup bundle.
+Find third party modules in `node_modules`, so that they can be included in a Rollup bundle.
 
 ## Installation
 
