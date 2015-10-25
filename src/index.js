@@ -23,6 +23,10 @@ export default function npm ( options ) {
 			// disregard relative paths, absolute paths, and entry modules
 			if ( importee[0] === '.' || absolutePath.test( importee ) || !importer ) return null;
 
+			// lop off trailing slash to handle bizarro cases like
+			// https://github.com/nodejs/readable-stream/blob/077681f08e04094f087f11431dc64ca147dda20f/lib/_stream_readable.js#L125
+			if ( importee.slice( -1 ) === '/' ) importee = importee.slice( 0, -1 );
+
 			var parts = importee.split( /[\/\\]/ );
 			var id = parts.shift();
 
