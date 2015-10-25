@@ -1,19 +1,21 @@
 {
   "name": "rollup-plugin-npm",
   "description": "Bundle third-party dependencies in node_modules",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "devDependencies": {
     "eslint": "^1.7.3",
     "gobble": "^0.10.2",
     "gobble-cli": "^0.6.0",
-    "gobble-rollup-babel": "^0.6.1",
+    "gobble-rollup": "^0.11.0",
     "mocha": "^2.3.3",
-    "rollup": "^0.19.2",
+    "rollup": "^0.20.0",
+    "rollup-plugin-babel": "^1.0.0",
     "rollup-plugin-commonjs": "^0.1.0",
     "string-capitalize": "^1.0.1",
     "vlq": "^0.2.1"
   },
-  "main": "dist/rollup-plugin-npm.js",
+  "main": "dist/rollup-plugin-npm.cjs.js",
+  "jsnext:main": "dist/rollup-plugin-npm.es6.js",
   "scripts": {
     "test": "mocha",
     "pretest": "npm run build",
