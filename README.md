@@ -1,7 +1,5 @@
 # rollup-plugin-npm
 
-**experimental, depends on unreleased version of Rollup**
-
 Find third party modules in `node_modules`, so that they can be included in a Rollup bundle.
 
 ## Installation
