@@ -87,4 +87,57 @@ describe( 'rollup-plugin-commonjs', function () {
 			assert.equal( module.exports, '.js' );
 		});
 	});
+
+	it( 'loads local directories by finding index.js within them', function () {
+		return rollup.rollup({
+			entry: 'samples/local-index/main.js',
+			plugins: [
+				npm()
+			]
+		}).then( function ( bundle ) {
+			var generated = bundle.generate({
+				format: 'cjs'
+			});
+
+			var fn = new Function ( 'module', generated.code );
+			var module = {};
+
+			fn( module );
+
+			assert.equal( module.exports, 42 );
+		});
+	});
+
+	it( 'loads package directories by finding index.js within them', function () {
+		return rollup.rollup({
+			entry: 'samples/package-index/main.js',
+			plugins: [
+				npm()
+			]
+		}).then( function ( bundle ) {
+			var generated = bundle.generate({
+				format: 'cjs'
+			});
+
+			assert.ok( ~generated.code.indexOf( 'setPrototypeOf' ) );
+		});
+	});
+
+	it( 'allows skipping by package name', function () {
+		return rollup.rollup({
+			entry: 'samples/skip/main.js',
+			plugins: [
+				npm({
+					main: true,
+					skip: [ 'vlq' ]
+				})
+			]
+		}).then( function ( bundle ) {
+			var generated = bundle.generate({
+				format: 'cjs'
+			});
+
+			assert.ok( generated.code.indexOf( 'encode' ) < 0 );
+		});
+	});
 });
