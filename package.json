@@ -10,7 +10,7 @@
     "mocha": "^2.3.3",
     "rollup": "^0.20.0",
     "rollup-plugin-babel": "^1.0.0",
-    "rollup-plugin-commonjs": "^0.1.0",
+    "rollup-plugin-commonjs": "^1.4.0",
     "string-capitalize": "^1.0.1",
     "vlq": "^0.2.1"
   },
@@ -30,5 +30,22 @@
   "dependencies": {
     "builtin-modules": "^1.1.0",
     "resolve": "^1.1.6"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rollup/rollup-plugin-npm.git"
+  },
+  "keywords": [
+    "rollup",
+    "rollup-plugin",
+    "es2015",
+    "npm",
+    "modules"
+  ],
+  "author": "Rich Harris <richard.a.harris@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rollup/rollup-plugin-npm/issues"
+  },
+  "homepage": "https://github.com/rollup/rollup-plugin-npm#readme"
 }
