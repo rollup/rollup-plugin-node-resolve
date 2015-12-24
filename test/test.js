@@ -1,6 +1,7 @@
 var assert = require( 'assert' );
 var rollup = require( 'rollup' );
 var commonjs = require( 'rollup-plugin-commonjs' );
+var babel = require( 'rollup-plugin-babel' );
 var npm = require( '..' );
 
 process.chdir( __dirname );
@@ -72,7 +73,8 @@ describe( 'rollup-plugin-commonjs', function () {
 		return rollup.rollup({
 			entry: 'samples/granular/main.js',
 			plugins: [
-				npm()
+				npm(),
+				babel()
 			]
 		}).then( function ( bundle ) {
 			var generated = bundle.generate({
