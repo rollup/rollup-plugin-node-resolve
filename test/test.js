@@ -6,7 +6,7 @@ var npm = require( '..' );
 
 process.chdir( __dirname );
 
-describe( 'rollup-plugin-commonjs', function () {
+describe( 'rollup-plugin-npm', function () {
 	it( 'finds a module with jsnext:main', function () {
 		return rollup.rollup({
 			entry: 'samples/jsnext/main.js',

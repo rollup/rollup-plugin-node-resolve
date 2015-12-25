@@ -30,10 +30,10 @@ export default function npm ( options ) {
 								if ( main ) {
 									pkg[ 'main' ] = main;
 								} else if ( !useMain ) {
-									throw new Error( `Package ${id} (imported by ${importer}) does not have a jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${id}'])` );
+									reject( Error( `Package ${id} (imported by ${importer}) does not have a jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${id}'])` ) );
 								}
 							} else if ( !useMain ) {
-								throw new Error( `To import from a package in node_modules (${id}), either options.jsnext or options.main must be true` );
+								reject( Error( `To import from a package in node_modules (${id}), either options.jsnext or options.main must be true` ) );
 							}
 							return pkg;
 						}
