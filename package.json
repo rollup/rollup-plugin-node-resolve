@@ -3,6 +3,7 @@
   "description": "Bundle third-party dependencies in node_modules",
   "version": "1.1.0",
   "devDependencies": {
+    "es5-ext": "^0.10.11",
     "eslint": "^1.7.3",
     "gobble": "^0.10.2",
     "gobble-cli": "^0.6.0",
