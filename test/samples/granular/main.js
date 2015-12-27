@@ -1,3 +1,3 @@
-import { extname } from 'rollup/src/utils/path';
+import uppercase from 'string/uppercase.js';
 
-export default extname( 'foo.js' );
+export default uppercase( 'foo' );

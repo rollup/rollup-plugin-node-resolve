@@ -86,7 +86,7 @@ describe( 'rollup-plugin-npm', function () {
 
 			fn( module );
 
-			assert.equal( module.exports, '.js' );
+			assert.equal( module.exports, 'FOO' );
 		});
 	});
 
