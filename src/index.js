@@ -1,6 +1,7 @@
 import { dirname } from 'path';
 import builtins from 'builtin-modules';
-import resolve from 'resolve';
+import nodeResolve from 'resolve';
+import browserResolve from 'browser-resolve';
 
 export default function npm ( options ) {
 	options = options || {};
@@ -8,8 +9,10 @@ export default function npm ( options ) {
 	const skip = options.skip || [];
 	const useMain = options.main !== false;
 
+	const resolve = options.browser ? browserResolve : nodeResolve;
+
 	return {
-		resolveId( importee, importer ) {
+		resolveId ( importee, importer ) {
 			const parts = importee.split( /[\/\\]/ );
 			const id = parts.shift();
 
@@ -23,7 +26,7 @@ export default function npm ( options ) {
 					importee,
 					{
 						basedir: dirname( importer ),
-						packageFilter( pkg ) {
+						packageFilter ( pkg ) {
 							const id = pkg[ 'name' ];
 							if ( options.jsnext ) {
 								const main = pkg[ 'jsnext:main' ];

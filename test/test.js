@@ -6,6 +6,19 @@ var npm = require( '..' );
 
 process.chdir( __dirname );
 
+function executeBundle ( bundle ) {
+	const generated = bundle.generate({
+		format: 'cjs'
+	});
+
+	const fn = new Function ( 'module', 'exports', 'assert', generated.code );
+	let module = { exports: {} };
+
+	fn( module, module.exports, assert );
+
+	return module;
+}
+
 describe( 'rollup-plugin-npm', function () {
 	it( 'finds a module with jsnext:main', function () {
 		return rollup.rollup({
@@ -13,16 +26,7 @@ describe( 'rollup-plugin-npm', function () {
 			plugins: [
 				npm({ jsnext: true })
 			]
-		}).then( function ( bundle ) {
-			var generated = bundle.generate({
-				format: 'cjs'
-			});
-
-			var fn = new Function ( 'module', generated.code );
-			var module = {};
-
-			fn( module );
-
+		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, '2H' );
 		});
 	});
@@ -34,18 +38,9 @@ describe( 'rollup-plugin-npm', function () {
 				npm({ main: true }),
 				commonjs()
 			]
-		}).then( function ( bundle ) {
-			var generated = bundle.generate({
-				format: 'cjs'
-			});
-
-			var fn = new Function ( 'module', generated.code );
-			var module = {};
-
-			fn( module );
-
+		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'It works!' );
-		})
+		});
 	});
 
 	it( 'handles a trailing slash', function () {
@@ -55,18 +50,9 @@ describe( 'rollup-plugin-npm', function () {
 				npm({ main: true }),
 				commonjs()
 			]
-		}).then( function ( bundle ) {
-			var generated = bundle.generate({
-				format: 'cjs'
-			});
-
-			var fn = new Function ( 'module', generated.code );
-			var module = {};
-
-			fn( module );
-
+		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'It works!' );
-		})
+		});
 	});
 
 	it( 'finds a file inside a package directory', function () {
@@ -76,16 +62,7 @@ describe( 'rollup-plugin-npm', function () {
 				npm(),
 				babel()
 			]
-		}).then( function ( bundle ) {
-			var generated = bundle.generate({
-				format: 'cjs'
-			});
-
-			var fn = new Function ( 'module', generated.code );
-			var module = {};
-
-			fn( module );
-
+		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'FOO' );
 		});
 	});
@@ -96,16 +73,7 @@ describe( 'rollup-plugin-npm', function () {
 			plugins: [
 				npm()
 			]
-		}).then( function ( bundle ) {
-			var generated = bundle.generate({
-				format: 'cjs'
-			});
-
-			var fn = new Function ( 'module', generated.code );
-			var module = {};
-
-			fn( module );
-
+		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 42 );
 		});
 	});
@@ -140,6 +108,66 @@ describe( 'rollup-plugin-npm', function () {
 			});
 
 			assert.ok( generated.code.indexOf( 'encode' ) < 0 );
+		});
+	});
+
+	it( 'disregards top-level browser field by default', function () {
+		return rollup.rollup({
+			entry: 'samples/browser/main.js',
+			plugins: [
+				npm({
+					main: true,
+					browser: false
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'node' );
+		});
+	});
+
+	it( 'allows use of the top-level browser field', function () {
+		return rollup.rollup({
+			entry: 'samples/browser/main.js',
+			plugins: [
+				npm({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'browser' );
+		});
+	});
+
+	it( 'disregards object browser field by default', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object/main.js',
+			plugins: [
+				npm({
+					main: true,
+					browser: false
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'node' );
+			assert.equal( module.exports.dep, 'node-dep' );
+			assert.equal( module.exports.test, 42 );
+		});
+	});
+
+	it( 'allows use of the object browser field', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object/main.js',
+			plugins: [
+				npm({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'browser' );
+			assert.equal( module.exports.dep, 'browser-dep' );
+			assert.equal( module.exports.test, 43 );
 		});
 	});
 });
