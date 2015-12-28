@@ -1,7 +1,10 @@
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 import builtins from 'builtin-modules';
 import nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
+
+const COMMONJS_BROWSER_EMPTY = nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
+const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 
 export default function npm ( options ) {
 	options = options || {};
@@ -9,7 +12,7 @@ export default function npm ( options ) {
 	const skip = options.skip || [];
 	const useMain = options.main !== false;
 
-	const resolve = options.browser ? browserResolve : nodeResolve;
+	const resolveId = options.browser ? browserResolve : nodeResolve;
 
 	return {
 		resolveId ( importee, importer ) {
@@ -18,11 +21,11 @@ export default function npm ( options ) {
 
 			if ( ~skip.indexOf(id) ) return null;
 
-			// disregard entry modules and builtins
-			if ( !importer || ~builtins.indexOf( importee )  ) return null;
+			// disregard entry module
+			if ( !importer ) return null;
 
 			return new Promise( ( accept, reject ) => {
-				resolve(
+				resolveId(
 					importee,
 					{
 						basedir: dirname( importer ),
@@ -41,7 +44,16 @@ export default function npm ( options ) {
 							return pkg;
 						}
 					},
-					( err, resolved ) => err ? reject( err ) : accept( resolved )
+					( err, resolved ) => {
+						if ( err ) {
+							reject( err );
+						} else {
+							if ( resolved === COMMONJS_BROWSER_EMPTY ) resolved = ES6_BROWSER_EMPTY;
+							if ( ~builtins.indexOf( resolved ) ) resolved = null;
+
+							accept( resolved );
+						}
+					}
 				);
 			});
 		}

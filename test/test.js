@@ -1,3 +1,4 @@
+var path = require( 'path' );
 var assert = require( 'assert' );
 var rollup = require( 'rollup' );
 var commonjs = require( 'rollup-plugin-commonjs' );
@@ -168,6 +169,32 @@ describe( 'rollup-plugin-npm', function () {
 			assert.equal( module.exports.env, 'browser' );
 			assert.equal( module.exports.dep, 'browser-dep' );
 			assert.equal( module.exports.test, 43 );
+		});
+	});
+
+	it( 'supports `false` in browser field', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-false/main.js',
+			plugins: [
+				npm({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle );
+	});
+
+	it( 'skips builtins', function () {
+		return rollup.rollup({
+			entry: 'samples/builtins/main.js',
+			plugins: [ npm() ]
+		}).then( bundle => {
+			const { code } = bundle.generate({ format: 'cjs' });
+			const fn = new Function ( 'module', 'exports', 'require', code );
+
+			fn( module, module.exports, id => require( id ) );
+
+			assert.equal( module.exports, path.sep );
 		});
 	});
 });
