@@ -1,5 +1,10 @@
 # rollup-plugin-npm changelog
 
+## 1.2.0
+
+* Support `browser` field ([#8](https://github.com/rollup/rollup-plugin-npm/issues/8))
+* Get tests to pass on Windows
+
 ## 1.1.0
 
 * Use node-resolve to handle various corner cases

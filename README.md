@@ -35,7 +35,13 @@ rollup({
       // treated as external if a local module with the same name
       // can't be found. If you really want to turn off this
       // behaviour for some reason, use `builtins: false`
-      builtins: false
+      builtins: false,
+
+      // some package.json files have a `browser` field which
+      // specifies alternative files to load for people bundling
+      // for the browser. If that's you, use this option, otherwise
+      // pkg.browser will be ignored
+      browser: true
     })
   ]
 }).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );
