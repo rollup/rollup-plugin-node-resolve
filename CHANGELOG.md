@@ -1,5 +1,9 @@
 # rollup-plugin-npm changelog
 
+## 1.2.1
+
+* Support scoped packages in `skip` option ([#15](https://github.com/rollup/rollup-plugin-npm/issues/15))
+
 ## 1.2.0
 
 * Support `browser` field ([#8](https://github.com/rollup/rollup-plugin-npm/issues/8))
