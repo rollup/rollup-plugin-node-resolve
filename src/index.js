@@ -16,8 +16,13 @@ export default function npm ( options ) {
 
 	return {
 		resolveId ( importee, importer ) {
-			const parts = importee.split( /[\/\\]/ );
-			const id = parts.shift();
+			let parts = importee.split( /[\/\\]/ );
+			let id = parts.shift();
+
+			// scoped packages
+			if ( id[0] === '@' && parts.length ) {
+				id += `/${parts.shift()}`;
+			}
 
 			if ( ~skip.indexOf(id) ) return null;
 

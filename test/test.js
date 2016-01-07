@@ -197,4 +197,17 @@ describe( 'rollup-plugin-npm', function () {
 			assert.equal( module.exports, path.sep );
 		});
 	});
+
+	it( 'allows scoped packages to be skipped', () => {
+		return rollup.rollup({
+			entry: 'samples/scoped/main.js',
+			plugins: [
+				npm({
+					skip: [ '@scoped/foo' ]
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports, [ '@scoped/foo' ]);
+		});
+	});
 });
