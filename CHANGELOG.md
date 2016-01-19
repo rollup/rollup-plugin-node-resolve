@@ -1,5 +1,9 @@
 # rollup-plugin-npm changelog
 
+## 1.3.0
+
+* `skip: true` skips all packages that don't satisfy the `main` or `jsnext` options ([#16](https://github.com/rollup/rollup-plugin-npm/pull/16))
+
 ## 1.2.1
 
 * Support scoped packages in `skip` option ([#15](https://github.com/rollup/rollup-plugin-npm/issues/15))
