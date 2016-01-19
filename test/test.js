@@ -210,4 +210,34 @@ describe( 'rollup-plugin-npm', function () {
 			assert.deepEqual( bundle.imports, [ '@scoped/foo' ]);
 		});
 	});
+
+	it( 'skip: true allows all unfound non-jsnext:main dependencies to be skipped without error', () => {
+		return rollup.rollup({
+			entry: 'samples/skip-true/main.js',
+			plugins: [
+				npm({
+					jsnext: true,
+					main: false,
+					skip: true
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports, [ 'legacy', 'missing' ]);
+		});
+	});
+
+	it( 'skip: true allows all unfound dependencies to be skipped without error', () => {
+		return rollup.rollup({
+			entry: 'samples/skip-true/main.js',
+			plugins: [
+				npm({
+					jsnext: false,
+					main: false,
+					skip: true
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports, [ 'jsnext', 'legacy', 'missing' ]);
+		});
+	});
 });
