@@ -48,7 +48,8 @@ export default function npm ( options ) {
 								else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext or options.main must be true` ) );
 							}
 							return pkg;
-						}
+						},
+						extensions: options.extensions
 					},
 					( err, resolved ) => {
 						if ( err ) {

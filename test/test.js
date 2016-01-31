@@ -240,4 +240,15 @@ describe( 'rollup-plugin-npm', function () {
 			assert.deepEqual( bundle.imports, [ 'jsnext', 'legacy', 'missing' ]);
 		});
 	});
+
+	it( 'supports non-standard extensions', () => {
+		return rollup.rollup({
+			entry: 'samples/extensions/main.js',
+			plugins: [
+				npm({
+					extensions: [ '.js', '.wut' ]
+				})
+			]
+		}).then( executeBundle );
+	});
 });
