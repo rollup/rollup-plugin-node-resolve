@@ -1,18 +1,18 @@
 import { dirname, resolve } from 'path';
 import builtins from 'builtin-modules';
-import nodeResolve from 'resolve';
+import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
 
-const COMMONJS_BROWSER_EMPTY = nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
+const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 
-export default function npm ( options ) {
+export default function nodeResolve ( options ) {
 	options = options || {};
 
 	const skip = options.skip || [];
 	const useMain = options.main !== false;
 
-	const resolveId = options.browser ? browserResolve : nodeResolve;
+	const resolveId = options.browser ? browserResolve : _nodeResolve;
 
 	return {
 		resolveId ( importee, importer ) {

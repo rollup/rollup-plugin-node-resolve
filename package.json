@@ -1,5 +1,5 @@
 {
-  "name": "rollup-plugin-npm",
+  "name": "rollup-plugin-node-resolve",
   "description": "Bundle third-party dependencies in node_modules",
   "version": "1.4.0",
   "devDependencies": {
@@ -15,12 +15,12 @@
     "string-capitalize": "^1.0.1",
     "vlq": "^0.2.1"
   },
-  "main": "dist/rollup-plugin-npm.cjs.js",
-  "jsnext:main": "dist/rollup-plugin-npm.es6.js",
+  "main": "dist/rollup-plugin-node-resolve.cjs.js",
+  "jsnext:main": "dist/rollup-plugin-node-resolve.es6.js",
   "scripts": {
     "test": "mocha --compilers js:babel-register",
     "pretest": "npm run build",
-    "build": "rollup -c -f cjs -o dist/rollup-plugin-npm.cjs.js && rollup -c -f es6 -o dist/rollup-plugin-npm.es6.js",
+    "build": "rollup -c -f cjs -o dist/rollup-plugin-node-resolve.cjs.js && rollup -c -f es6 -o dist/rollup-plugin-node-resolve.es6.js",
     "prepublish": "npm test"
   },
   "files": [
@@ -35,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rollup/rollup-plugin-npm.git"
+    "url": "git+https://github.com/rollup/rollup-plugin-node-resolve.git"
   },
   "keywords": [
     "rollup",
@@ -47,7 +47,7 @@
   "author": "Rich Harris <richard.a.harris@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rollup/rollup-plugin-npm/issues"
+    "url": "https://github.com/rollup/rollup-plugin-node-resolve/issues"
   },
-  "homepage": "https://github.com/rollup/rollup-plugin-npm#readme"
+  "homepage": "https://github.com/rollup/rollup-plugin-node-resolve#readme"
 }

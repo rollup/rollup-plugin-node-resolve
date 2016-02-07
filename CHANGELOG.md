@@ -1,4 +1,4 @@
-# rollup-plugin-npm changelog
+# rollup-plugin-node-resolve changelog
 
 ## 1.4.0
 
@@ -6,15 +6,15 @@
 
 ## 1.3.0
 
-* `skip: true` skips all packages that don't satisfy the `main` or `jsnext` options ([#16](https://github.com/rollup/rollup-plugin-npm/pull/16))
+* `skip: true` skips all packages that don't satisfy the `main` or `jsnext` options ([#16](https://github.com/rollup/rollup-plugin-node-resolve/pull/16))
 
 ## 1.2.1
 
-* Support scoped packages in `skip` option ([#15](https://github.com/rollup/rollup-plugin-npm/issues/15))
+* Support scoped packages in `skip` option ([#15](https://github.com/rollup/rollup-plugin-node-resolve/issues/15))
 
 ## 1.2.0
 
-* Support `browser` field ([#8](https://github.com/rollup/rollup-plugin-npm/issues/8))
+* Support `browser` field ([#8](https://github.com/rollup/rollup-plugin-node-resolve/issues/8))
 * Get tests to pass on Windows
 
 ## 1.1.0

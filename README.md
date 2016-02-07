@@ -1,23 +1,23 @@
-# rollup-plugin-npm
+# rollup-plugin-node-resolve
 
-Find third party modules in `node_modules`, so that they can be included in a Rollup bundle.
+Locate modules using the [Node resolution algorithm](https://nodejs.org/api/modules.html#modules_all_together), for using third party modules in `node_modules`
 
 ## Installation
 
 ```bash
-npm install --save-dev rollup-plugin-npm
+npm install --save-dev rollup-plugin-node-resolve
 ```
 
 ## Usage
 
 ```js
 import { rollup } from 'rollup';
-import npm from 'rollup-plugin-npm';
+import nodeResolve from 'rollup-plugin-node-resolve';
 
 rollup({
   entry: 'main.js',
   plugins: [
-    npm({
+    nodeResolve({
       // use "jsnext:main" if possible
       // – see https://github.com/rollup/rollup/wiki/jsnext:main
       jsnext: true,
@@ -55,7 +55,7 @@ import commonjs from 'rollup-plugin-commonjs';
 rollup({
   entry: 'main.js',
   plugins: [
-    npm({ jsnext: true, main: true }),
+    nodeResolve({ jsnext: true, main: true }),
     commonjs()
   ]
 }).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );

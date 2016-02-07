@@ -3,7 +3,7 @@ var assert = require( 'assert' );
 var rollup = require( 'rollup' );
 var commonjs = require( 'rollup-plugin-commonjs' );
 var babel = require( 'rollup-plugin-babel' );
-var npm = require( '..' );
+var nodeResolve = require( '..' );
 
 process.chdir( __dirname );
 
@@ -20,12 +20,12 @@ function executeBundle ( bundle ) {
 	return module;
 }
 
-describe( 'rollup-plugin-npm', function () {
+describe( 'rollup-plugin-node-resolve', function () {
 	it( 'finds a module with jsnext:main', function () {
 		return rollup.rollup({
 			entry: 'samples/jsnext/main.js',
 			plugins: [
-				npm({ jsnext: true })
+				nodeResolve({ jsnext: true })
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, '2H' );
@@ -36,7 +36,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/commonjs/main.js',
 			plugins: [
-				npm({ main: true }),
+				nodeResolve({ main: true }),
 				commonjs()
 			]
 		}).then( executeBundle ).then( module => {
@@ -48,7 +48,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/trailing-slash/main.js',
 			plugins: [
-				npm({ main: true }),
+				nodeResolve({ main: true }),
 				commonjs()
 			]
 		}).then( executeBundle ).then( module => {
@@ -60,7 +60,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/granular/main.js',
 			plugins: [
-				npm(),
+				nodeResolve(),
 				babel()
 			]
 		}).then( executeBundle ).then( module => {
@@ -72,7 +72,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/local-index/main.js',
 			plugins: [
-				npm()
+				nodeResolve()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 42 );
@@ -83,7 +83,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/package-index/main.js',
 			plugins: [
-				npm()
+				nodeResolve()
 			]
 		}).then( function ( bundle ) {
 			var generated = bundle.generate({
@@ -98,7 +98,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/skip/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					main: true,
 					skip: [ 'vlq' ]
 				})
@@ -116,7 +116,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/browser/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					main: true,
 					browser: false
 				})
@@ -130,7 +130,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/browser/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					main: true,
 					browser: true
 				})
@@ -144,7 +144,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/browser-object/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					main: true,
 					browser: false
 				})
@@ -160,7 +160,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/browser-object/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					main: true,
 					browser: true
 				})
@@ -176,7 +176,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/browser-false/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					main: true,
 					browser: true
 				})
@@ -187,7 +187,7 @@ describe( 'rollup-plugin-npm', function () {
 	it( 'skips builtins', function () {
 		return rollup.rollup({
 			entry: 'samples/builtins/main.js',
-			plugins: [ npm() ]
+			plugins: [ nodeResolve() ]
 		}).then( bundle => {
 			const { code } = bundle.generate({ format: 'cjs' });
 			const fn = new Function ( 'module', 'exports', 'require', code );
@@ -202,7 +202,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/scoped/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					skip: [ '@scoped/foo' ]
 				})
 			]
@@ -215,7 +215,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/skip-true/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					jsnext: true,
 					main: false,
 					skip: true
@@ -230,7 +230,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/skip-true/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					jsnext: false,
 					main: false,
 					skip: true
@@ -245,7 +245,7 @@ describe( 'rollup-plugin-npm', function () {
 		return rollup.rollup({
 			entry: 'samples/extensions/main.js',
 			plugins: [
-				npm({
+				nodeResolve({
 					extensions: [ '.js', '.wut' ]
 				})
 			]
