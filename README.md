@@ -1,5 +1,7 @@
 # rollup-plugin-node-resolve
 
+*This plugin used to be called rollup-plugin-npm*
+
 Locate modules using the [Node resolution algorithm](https://nodejs.org/api/modules.html#modules_all_together), for using third party modules in `node_modules`
 
 ## Installation
