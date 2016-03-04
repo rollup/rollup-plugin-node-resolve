@@ -207,7 +207,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( bundle => {
-			assert.deepEqual( bundle.imports, [ '@scoped/foo' ]);
+			assert.deepEqual( bundle.imports.sort(), [ '@scoped/foo' ]);
 		});
 	});
 
@@ -222,7 +222,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( bundle => {
-			assert.deepEqual( bundle.imports, [ 'legacy', 'missing' ]);
+			assert.deepEqual( bundle.imports.sort(), [ 'legacy', 'missing' ]);
 		});
 	});
 
@@ -237,7 +237,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( bundle => {
-			assert.deepEqual( bundle.imports, [ 'jsnext', 'legacy', 'missing' ]);
+			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing' ]);
 		});
 	});
 
