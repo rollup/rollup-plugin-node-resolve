@@ -5,13 +5,17 @@ import browserResolve from 'browser-resolve';
 
 const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
+const CONSOLE_WARN = ( ...args ) => console.warn( ...args );
 
 export default function nodeResolve ( options ) {
 	options = options || {};
 
 	const skip = options.skip || [];
 	const useMain = options.main !== false;
+	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
+	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 
+	const onwarn = options.onwarn || CONSOLE_WARN;
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
 
 	return {
@@ -56,10 +60,22 @@ export default function nodeResolve ( options ) {
 							if ( skip === true ) accept( false );
 							else reject( err );
 						} else {
-							if ( resolved === COMMONJS_BROWSER_EMPTY ) resolved = ES6_BROWSER_EMPTY;
-							if ( ~builtins.indexOf( resolved ) ) resolved = null;
-
-							accept( resolved );
+							if ( resolved === COMMONJS_BROWSER_EMPTY ) {
+								accept( ES6_BROWSER_EMPTY );
+							} else if ( ~builtins.indexOf( resolved ) ) {
+								accept( null );
+							} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
+								if ( !isPreferBuiltinsSet ) {
+									onwarn(
+										`preferring built-in module '${importee}' over local alternative ` +
+                    `at '${resolved}', pass 'preferBuiltins: false' to disable this ` +
+										`behavior or 'preferBuiltins: true' to disable this warning`
+									);
+								}
+								accept( null );
+							} else {
+								accept( resolved );
+							}
 						}
 					}
 				);

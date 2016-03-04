@@ -237,7 +237,57 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing' ]);
+			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing' ] );
+		});
+	});
+
+	it( 'preferBuiltins: true allows preferring a builtin to a local module of the same name', () => {
+		return rollup.rollup({
+			entry: 'samples/prefer-builtin/main.js',
+			plugins: [
+				nodeResolve({
+					preferBuiltins: true
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports.sort(), [ 'events' ] );
+		});
+	});
+
+	it( 'preferBuiltins: false allows resolving a local module with the same name as a builtin module', () => {
+		return rollup.rollup({
+			entry: 'samples/prefer-builtin/main.js',
+			plugins: [
+				nodeResolve({
+					preferBuiltins: false
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports.sort(), [] );
+		});
+	});
+
+	it( 'issues a warning when preferring a builtin module without having explicit configuration', () => {
+		let warning = null;
+		return rollup.rollup({
+			entry: 'samples/prefer-builtin/main.js',
+			plugins: [
+				nodeResolve({
+					onwarn( message ) {
+						if ( ~message.indexOf( 'prefer' ) ) {
+							warning = message;
+						}
+					}
+				})
+			]
+		}).then( () => {
+			let localPath = path.join(__dirname, 'node_modules/events/index.js');
+      assert.strictEqual(
+				warning,
+				`preferring built-in module 'events' over local alternative ` +
+				`at '${localPath}', pass 'preferBuiltins: false' to disable this behavior ` +
+				`or 'preferBuiltins: true' to disable this warning`
+			);
 		});
 	});
 
