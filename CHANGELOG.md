@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 1.5.0
+
+* Prefer built-in options, but allow opting out ([#28](https://github.com/rollup/rollup-plugin-node-resolve/pull/28))
+
 ## 1.4.0
 
 * Pass `options.extensions` through to `node-resolve`
