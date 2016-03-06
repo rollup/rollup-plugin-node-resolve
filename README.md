@@ -40,7 +40,11 @@ rollup({
       browser: true,
 
       // not all files you want to resolve are .js files
-      extensions: [ '.js', '.json' ]
+      extensions: [ '.js', '.json' ],
+
+      // whether to prefer built-in modules (e.g. `fs`, `path`) or
+      // local ones with the same names
+      preferBuiltins: false
     })
   ]
 }).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );
