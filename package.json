@@ -9,7 +9,7 @@
     "es5-ext": "^0.10.11",
     "eslint": "^1.7.3",
     "mocha": "^2.3.3",
-    "rollup": "^0.22.0",
+    "rollup": "^0.25.7",
     "rollup-plugin-babel": "^2.2.0",
     "rollup-plugin-commonjs": "^2.0.0",
     "string-capitalize": "^1.0.1",

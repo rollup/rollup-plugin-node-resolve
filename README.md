@@ -30,7 +30,9 @@ rollup({
       main: true,  // Default: true
 
       // if there's something your bundle requires that you DON'T
-      // want to include, add it to 'skip'
+      // want to include, add it to 'skip'. Local and relative imports
+      // can be skipped by giving the full filepath. E.g., 
+      // `path.resolve('src/relative-dependency.js')`
       skip: [ 'some-big-dependency' ],  // Default: []
 
       // some package.json files have a `browser` field which
