@@ -59,7 +59,11 @@ rollup({
     nodeResolve({ jsnext: true, main: true }),
     commonjs()
   ]
-}).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );
+}).then(bundle => bundle.write({ 
+  dest: 'bundle.js', 
+  moduleName: 'MyModule',
+  format: 'iife' 
+})).catch(err => console.log(err.stack));
 ```
 
 
