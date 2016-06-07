@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 1.7.0
+
+* Allow relative IDs to be external ([#32](https://github.com/rollup/rollup-plugin-node-resolve/pull/32))
+
 ## 1.6.0
 
 * Skip IDs containing null character
