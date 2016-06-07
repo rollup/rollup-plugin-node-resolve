@@ -273,7 +273,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			entry: 'samples/prefer-builtin/main.js',
 			plugins: [
 				nodeResolve({
-					onwarn( message ) {
+					onwarn ( message ) {
 						if ( ~message.indexOf( 'prefer' ) ) {
 							warning = message;
 						}
@@ -282,7 +282,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			]
 		}).then( () => {
 			let localPath = path.join(__dirname, 'node_modules/events/index.js');
-      assert.strictEqual(
+			assert.strictEqual(
 				warning,
 				`preferring built-in module 'events' over local alternative ` +
 				`at '${localPath}', pass 'preferBuiltins: false' to disable this behavior ` +
@@ -300,5 +300,11 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( executeBundle );
+	});
+
+	it( 'ignores IDs with null character', () => {
+		return Promise.resolve( nodeResolve().resolveId( '\0someid', 'test.js' ) ).then( result => {
+			assert.equal( result, null );
+		});
 	});
 });

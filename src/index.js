@@ -5,7 +5,7 @@ import browserResolve from 'browser-resolve';
 
 const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
-const CONSOLE_WARN = ( ...args ) => console.warn( ...args );
+const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
 
 export default function nodeResolve ( options ) {
 	options = options || {};
@@ -20,6 +20,8 @@ export default function nodeResolve ( options ) {
 
 	return {
 		resolveId ( importee, importer ) {
+			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
+
 			let parts = importee.split( /[\/\\]/ );
 			let id = parts.shift();
 
@@ -68,7 +70,7 @@ export default function nodeResolve ( options ) {
 								if ( !isPreferBuiltinsSet ) {
 									onwarn(
 										`preferring built-in module '${importee}' over local alternative ` +
-                    `at '${resolved}', pass 'preferBuiltins: false' to disable this ` +
+										`at '${resolved}', pass 'preferBuiltins: false' to disable this ` +
 										`behavior or 'preferBuiltins: true' to disable this warning`
 									);
 								}
