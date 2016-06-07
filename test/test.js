@@ -2,7 +2,7 @@ var path = require( 'path' );
 var assert = require( 'assert' );
 var rollup = require( 'rollup' );
 var commonjs = require( 'rollup-plugin-commonjs' );
-var babel = require( 'rollup-plugin-babel' );
+var buble = require( 'rollup-plugin-buble' );
 var nodeResolve = require( '..' );
 
 process.chdir( __dirname );
@@ -61,7 +61,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			entry: 'samples/granular/main.js',
 			plugins: [
 				nodeResolve(),
-				babel()
+				buble()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'FOO' );
