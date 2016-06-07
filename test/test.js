@@ -226,6 +226,23 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'skip: allows for a relative file to be skipped, even if the file doesn\'t exist', () => {
+		const externalFile = path.resolve( __dirname, 'samples', 'skip-nonexistent-relative', './nonexistent-relative-dependency.js' );
+		return rollup.rollup({
+			entry: 'samples/skip-nonexistent-relative/main.js',
+			external: [ externalFile ],
+			plugins: [
+				nodeResolve({
+					jsnext: true,
+					main: false,
+					skip: [ externalFile ]
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports.sort(), [ './nonexistent-relative-dependency.js' ]);
+		});
+	});
+
 	it( 'skip: true allows all unfound dependencies to be skipped without error', () => {
 		return rollup.rollup({
 			entry: 'samples/skip-true/main.js',

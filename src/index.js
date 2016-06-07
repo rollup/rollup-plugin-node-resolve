@@ -25,9 +25,12 @@ export default function nodeResolve ( options ) {
 			let parts = importee.split( /[\/\\]/ );
 			let id = parts.shift();
 
-			// scoped packages
 			if ( id[0] === '@' && parts.length ) {
+				// scoped packages
 				id += `/${parts.shift()}`;
+			} else if ( id[0] === '.' ) {
+				// an import relative to the parent dir of the importer
+				id = resolve( importer, '..', importee );
 			}
 
 			if ( skip !== true && ~skip.indexOf( id ) ) return null;
