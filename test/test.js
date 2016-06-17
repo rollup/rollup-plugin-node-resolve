@@ -324,4 +324,16 @@ describe( 'rollup-plugin-node-resolve', function () {
 			assert.equal( result, null );
 		});
 	});
+
+	it( 'supports ./ in entry filename', () => {
+		return rollup.rollup({
+			entry: './samples/jsnext/main.js',
+			plugins: [
+				nodeResolve({ jsnext: true })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, '2H' );
+		});
+	});
+
 });
