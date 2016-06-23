@@ -19,6 +19,8 @@ export default function nodeResolve ( options ) {
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
 
 	return {
+		name: 'node-resolve',
+
 		resolveId ( importee, importer ) {
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
 
