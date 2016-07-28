@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 1.7.2
+
+* Allow entry point paths beginning with ./
+
 ## 1.7.1
 
 * Return a `name`
