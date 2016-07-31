@@ -217,12 +217,30 @@ describe( 'rollup-plugin-node-resolve', function () {
 			plugins: [
 				nodeResolve({
 					jsnext: true,
+					module: false,
 					main: false,
 					skip: true
 				})
 			]
 		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'legacy', 'missing' ]);
+			assert.deepEqual( bundle.imports.sort(), [ 'legacy', 'missing', 'module' ]);
+		});
+	});
+
+	it( 'skip: true allows all unfound non-module dependencies to be skipped without error', () => {
+		return rollup.rollup({
+			entry: 'samples/skip-true/main.js',
+			plugins: [
+				nodeResolve({
+					jsnext: false,
+					module: true,
+					main: false,
+					skip: true,
+					preferBuiltins: false
+				})
+			]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing' ]);
 		});
 	});
 
@@ -250,11 +268,12 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve({
 					jsnext: false,
 					main: false,
+					module: false,
 					skip: true
 				})
 			]
 		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing' ] );
+			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing', 'module' ] );
 		});
 	});
 
@@ -322,6 +341,39 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'ignores IDs with null character', () => {
 		return Promise.resolve( nodeResolve().resolveId( '\0someid', 'test.js' ) ).then( result => {
 			assert.equal( result, null );
+		});
+	});
+
+	it( 'finds a module with module field', () => {
+		return rollup.rollup({
+			entry: 'samples/module/main.js',
+			plugins: [
+				nodeResolve({ preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'MODULE' );
+		});
+	});
+
+	it( 'prefers module field over jsnext:main and main', () => {
+		return rollup.rollup({
+			entry: 'samples/prefer-module/main.js',
+			plugins: [
+				nodeResolve({ jsnext: true, preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'MODULE-ENTRY' );
+		});
+	});
+
+	it( 'prefers jsnext:main field over main', () => {
+		return rollup.rollup({
+			entry: 'samples/prefer-jsnext/main.js',
+			plugins: [
+				nodeResolve({ jsnext: true, module: false, preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'JSNEXT-ENTRY' );
 		});
 	});
 
