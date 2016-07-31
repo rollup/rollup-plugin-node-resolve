@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 2.0.0
+
+* Add support `module` field in package.json as an official alternative to jsnext
+
 ## 1.7.3
 
 * Error messages are more descriptive ([#50](https://github.com/rollup/rollup-plugin-node-resolve/issues/50))

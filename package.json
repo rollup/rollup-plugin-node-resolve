@@ -1,7 +1,7 @@
 {
   "name": "rollup-plugin-node-resolve",
   "description": "Bundle third-party dependencies in node_modules",
-  "version": "1.7.3",
+  "version": "2.0.0",
   "devDependencies": {
     "buble": "^0.10.6",
     "es5-ext": "^0.10.11",
