@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 1.7.3
+
+* Error messages are more descriptive ([#50](https://github.com/rollup/rollup-plugin-node-resolve/issues/50))
+
 ## 1.7.2
 
 * Allow entry point paths beginning with ./
