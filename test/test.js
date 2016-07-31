@@ -336,4 +336,31 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'throws error if local id is not resolved', () => {
+		const entry = 'samples/unresolved-local/main.js';
+		return rollup.rollup({
+			entry,
+			plugins: [
+				nodeResolve()
+			]
+		}).then( () => {
+			throw Error( 'test should fail' );
+		}, err => {
+			assert.equal( err.message, 'Could not resolve \'./foo\' from ' + path.resolve( __dirname, entry ) );
+		});
+	});
+
+	it( 'throws error if global id is not resolved', () => {
+		const entry = 'samples/unresolved-global/main.js';
+		return rollup.rollup({
+			entry,
+			plugins: [
+				nodeResolve()
+			]
+		}).then( () => {
+			throw Error( 'test should fail' );
+		}, err => {
+			assert.equal( err.message, 'Could not resolve \'foo\' from ' + path.resolve( __dirname, entry ) );
+		});
+	});
 });

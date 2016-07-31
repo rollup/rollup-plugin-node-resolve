@@ -1,4 +1,4 @@
-import { dirname, resolve } from 'path';
+import { dirname, resolve, normalize } from 'path';
 import builtins from 'builtin-modules';
 import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
@@ -65,7 +65,7 @@ export default function nodeResolve ( options ) {
 					( err, resolved ) => {
 						if ( err ) {
 							if ( skip === true ) accept( false );
-							else reject( err );
+							else reject( Error( `Could not resolve '${importee}' from ${normalize( importer )}` ) );
 						} else {
 							if ( resolved === COMMONJS_BROWSER_EMPTY ) {
 								accept( ES6_BROWSER_EMPTY );
