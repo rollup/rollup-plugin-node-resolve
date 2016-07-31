@@ -16,9 +16,9 @@
   "main": "dist/rollup-plugin-node-resolve.cjs.js",
   "jsnext:main": "dist/rollup-plugin-node-resolve.es6.js",
   "scripts": {
+    "pretest": "rollup -c",
     "test": "mocha",
-    "pretest": "npm run build",
-    "build": "rollup -c",
+    "posttest": "eslint src test/*.js",
     "prepublish": "npm test"
   },
   "files": [
