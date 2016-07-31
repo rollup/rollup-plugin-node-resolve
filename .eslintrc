@@ -7,7 +7,10 @@
         "space-before-blocks": [ 2, "always" ],
         "space-before-function-paren": [ 2, "always" ],
         "no-mixed-spaces-and-tabs": [ 2, "smart-tabs" ],
-        "no-cond-assign": [ 0 ]
+        "no-cond-assign": 0,
+        "no-unused-vars": 2,
+        "prefer-const": 2,
+        "no-var": 2
     },
     "env": {
         "es6": true,

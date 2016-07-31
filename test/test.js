@@ -1,9 +1,9 @@
-var path = require( 'path' );
-var assert = require( 'assert' );
-var rollup = require( 'rollup' );
-var commonjs = require( 'rollup-plugin-commonjs' );
-var buble = require( 'rollup-plugin-buble' );
-var nodeResolve = require( '..' );
+const path = require( 'path' );
+const assert = require( 'assert' );
+const rollup = require( 'rollup' );
+const commonjs = require( 'rollup-plugin-commonjs' );
+const buble = require( 'rollup-plugin-buble' );
+const nodeResolve = require( '..' );
 
 process.chdir( __dirname );
 
@@ -13,7 +13,7 @@ function executeBundle ( bundle ) {
 	});
 
 	const fn = new Function ( 'module', 'exports', 'assert', generated.code );
-	let module = { exports: {} };
+	const module = { exports: {} };
 
 	fn( module, module.exports, assert );
 
@@ -86,7 +86,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve()
 			]
 		}).then( function ( bundle ) {
-			var generated = bundle.generate({
+			const generated = bundle.generate({
 				format: 'cjs'
 			});
 
@@ -104,7 +104,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( function ( bundle ) {
-			var generated = bundle.generate({
+			const generated = bundle.generate({
 				format: 'cjs'
 			});
 
@@ -298,7 +298,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( () => {
-			let localPath = path.join(__dirname, 'node_modules/events/index.js');
+			const localPath = path.join(__dirname, 'node_modules/events/index.js');
 			assert.strictEqual(
 				warning,
 				`preferring built-in module 'events' over local alternative ` +
