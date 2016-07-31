@@ -11,6 +11,8 @@ export default function nodeResolve ( options ) {
 	options = options || {};
 
 	const skip = options.skip || [];
+	const useJsnext = options.jsnext === true;
+	const useModule = options.module !== false;
 	const useMain = options.main !== false;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
@@ -46,17 +48,16 @@ export default function nodeResolve ( options ) {
 					{
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
-							if ( options.jsnext ) {
-								const main = pkg[ 'jsnext:main' ];
-								if ( main ) {
-									pkg[ 'main' ] = main;
-								} else if ( !useMain ) {
-									if ( skip === true ) accept( false );
-									else reject( Error( `Package ${importee} (imported by ${importer}) does not have a jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
-								}
-							} else if ( !useMain ) {
+							if ( !useJsnext && !useMain && !useModule ) {
 								if ( skip === true ) accept( false );
-								else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext or options.main must be true` ) );
+								else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext, options.module or options.main must be true` ) );
+							} else if ( useModule && pkg[ 'module' ] ) {
+								pkg[ 'main' ] = pkg[ 'module' ];
+							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
+								pkg[ 'main' ] = pkg[ 'jsnext:main' ];
+							} else if ( ( useJsnext || useModule ) && !useMain ) {
+								if ( skip === true ) accept( false );
+								else reject( Error( `Package ${importee} (imported by ${importer}) does not have a module or jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
 							}
 							return pkg;
 						},
