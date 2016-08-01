@@ -20,6 +20,9 @@ rollup({
   entry: 'main.js',
   plugins: [
     nodeResolve({
+      // use "module" field for ES6 module if possible
+      module: true, // Default: true
+
       // use "jsnext:main" if possible
       // – see https://github.com/rollup/rollup/wiki/jsnext:main
       jsnext: true,  // Default: false
