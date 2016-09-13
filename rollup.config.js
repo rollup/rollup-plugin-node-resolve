@@ -6,6 +6,6 @@ export default {
 	external: [ 'path', 'fs', 'builtin-modules', 'resolve', 'browser-resolve' ],
 	targets: [
 		{ dest: 'dist/rollup-plugin-node-resolve.cjs.js', format: 'cjs' },
-		{ dest: 'dist/rollup-plugin-node-resolve.es6.js', format: 'es6' }
+		{ dest: 'dist/rollup-plugin-node-resolve.es.js', format: 'es' }
 	]
 };

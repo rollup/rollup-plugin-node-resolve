@@ -7,9 +7,7 @@ const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
 
-export default function nodeResolve ( options ) {
-	options = options || {};
-
+export default function nodeResolve ( options = {} ) {
 	const skip = options.skip || [];
 	const useJsnext = options.jsnext === true;
 	const useModule = options.module !== false;

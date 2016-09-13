@@ -3,18 +3,19 @@
   "description": "Bundle third-party dependencies in node_modules",
   "version": "2.0.0",
   "devDependencies": {
-    "buble": "^0.10.6",
+    "buble": "^0.13.2",
     "es5-ext": "^0.10.11",
     "eslint": "^2.11.1",
-    "mocha": "^2.3.3",
-    "rollup": "^0.27.1",
-    "rollup-plugin-buble": "^0.10.0",
-    "rollup-plugin-commonjs": "^2.0.0",
+    "mocha": "^3.0.2",
+    "rollup": "^0.35.9",
+    "rollup-plugin-buble": "^0.13.0",
+    "rollup-plugin-commonjs": "^4.1.0",
     "string-capitalize": "^1.0.1",
     "vlq": "^0.2.1"
   },
   "main": "dist/rollup-plugin-node-resolve.cjs.js",
-  "jsnext:main": "dist/rollup-plugin-node-resolve.es6.js",
+  "module": "dist/rollup-plugin-node-resolve.es.js",
+  "jsnext:main": "dist/rollup-plugin-node-resolve.es.js",
   "scripts": {
     "pretest": "rollup -c",
     "test": "mocha",
@@ -23,8 +24,7 @@
   },
   "files": [
     "src",
-    "dist",
-    "README.md"
+    "dist"
   ],
   "dependencies": {
     "browser-resolve": "^1.11.0",
