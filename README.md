@@ -53,6 +53,11 @@ export default {
       // Lock the module search in this path (like a chroot). Module defined
       // outside this path will be marked as external
       jail: '/my/jail/path', // Default: '/'
+      
+      // Set to an array of strings and/or regexps to lock the module search
+      // to modules that match at least one entry. Modules not matching any
+      // entry will be marked as external
+      only: [ 'some_module', /^@some_scope\/.*$/ ], // Default: null
 
       // If true, inspect resolved files to check that they are
       // ES2015 modules
