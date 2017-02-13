@@ -14,6 +14,7 @@ export default function nodeResolve ( options = {} ) {
 	const useMain = options.main !== false;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
+	const customResolveOptions = options.customResolveOptions || {};
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
@@ -43,24 +44,24 @@ export default function nodeResolve ( options = {} ) {
 			return new Promise( ( accept, reject ) => {
 				resolveId(
 					importee,
-					{
-						basedir: dirname( importer ),
-						packageFilter ( pkg ) {
-							if ( !useJsnext && !useMain && !useModule ) {
-								if ( skip === true ) accept( false );
-								else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext, options.module or options.main must be true` ) );
-							} else if ( useModule && pkg[ 'module' ] ) {
-								pkg[ 'main' ] = pkg[ 'module' ];
-							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
-								pkg[ 'main' ] = pkg[ 'jsnext:main' ];
-							} else if ( ( useJsnext || useModule ) && !useMain ) {
-								if ( skip === true ) accept( false );
-								else reject( Error( `Package ${importee} (imported by ${importer}) does not have a module or jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
-							}
-							return pkg;
-						},
-						extensions: options.extensions
-					},
+					Object.assign({
+                        basedir: dirname( importer ),
+                        packageFilter ( pkg ) {
+                            if ( !useJsnext && !useMain && !useModule ) {
+                                if ( skip === true ) accept( false );
+                                else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext, options.module or options.main must be true` ) );
+                            } else if ( useModule && pkg[ 'module' ] ) {
+                                pkg[ 'main' ] = pkg[ 'module' ];
+                            } else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
+                                pkg[ 'main' ] = pkg[ 'jsnext:main' ];
+                            } else if ( ( useJsnext || useModule ) && !useMain ) {
+                                if ( skip === true ) accept( false );
+                                else reject( Error( `Package ${importee} (imported by ${importer}) does not have a module or jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
+                            }
+                            return pkg;
+                        },
+                        extensions: options.extensions
+                    }, customResolveOptions),
 					( err, resolved ) => {
 						if ( err ) {
 							if ( skip === true ) accept( false );
