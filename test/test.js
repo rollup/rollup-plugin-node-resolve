@@ -4,6 +4,7 @@ const rollup = require( 'rollup' );
 const commonjs = require( 'rollup-plugin-commonjs' );
 const buble = require( 'rollup-plugin-buble' );
 const nodeResolve = require( '..' );
+const fs = require( 'fs' );
 
 process.chdir( __dirname );
 
@@ -364,6 +365,37 @@ describe( 'rollup-plugin-node-resolve', function () {
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports, 'MODULE-ENTRY' );
 		});
+	});
+
+	it( 'resolves symlinked packages', () => {
+		linkDirectories();
+
+		return rollup.rollup({
+			entry: 'samples/symlinked/first/index.js',
+			plugins: [
+				nodeResolve()				
+			]
+		}).then( executeBundle ).then( module => {
+			const { number1, number2 } = module.exports;
+			assert.equal( number1, number2 );
+		}).then(() => { 
+			unlinkDirectories();
+		}).catch(err => { 
+			unlinkDirectories();
+			throw err;
+		});
+
+		function linkDirectories () {
+			fs.symlinkSync('../../second', './samples/symlinked/first/node_modules/second', 'dir');
+			fs.symlinkSync('../../third', './samples/symlinked/first/node_modules/third', 'dir');
+			fs.symlinkSync('../../third', './samples/symlinked/second/node_modules/third', 'dir');
+		}
+
+		function unlinkDirectories () {
+			fs.unlinkSync('./samples/symlinked/first/node_modules/second');
+			fs.unlinkSync('./samples/symlinked/first/node_modules/third');
+			fs.unlinkSync('./samples/symlinked/second/node_modules/third');
+		}
 	});
 
 	it( 'prefers jsnext:main field over main', () => {
