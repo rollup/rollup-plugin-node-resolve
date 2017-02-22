@@ -368,6 +368,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	});
 
 	it( 'resolves symlinked packages', () => {
+		createMissingDirectories();
 		linkDirectories();
 
 		return rollup.rollup({
@@ -384,6 +385,18 @@ describe( 'rollup-plugin-node-resolve', function () {
 			unlinkDirectories();
 			throw err;
 		});
+
+		function createMissingDirectories () {
+			createDirectory( './samples/symlinked/first/node_modules' );
+			createDirectory( './samples/symlinked/second/node_modules' );
+			createDirectory( './samples/symlinked/third/node_modules' );
+		}
+
+		function createDirectory ( pathToDir ) { 
+			if ( !fs.existsSync( pathToDir ) ) {
+				fs.mkdirSync( pathToDir );
+			}
+		}
 
 		function linkDirectories () {
 			fs.symlinkSync('../../second', './samples/symlinked/first/node_modules/second', 'dir');
