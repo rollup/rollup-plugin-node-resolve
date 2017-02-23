@@ -377,8 +377,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				nodeResolve()				
 			]
 		}).then( executeBundle ).then( module => {
-			const { number1, number2 } = module.exports;
-			assert.equal( number1, number2 );
+			assert.equal( module.exports.number1, module.exports.number2 );
 		}).then(() => { 
 			unlinkDirectories();
 		}).catch(err => { 
