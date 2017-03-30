@@ -1,4 +1,4 @@
-import { dirname, resolve, normalize } from 'path';
+import { dirname, resolve, normalize, sep } from 'path';
 import builtins from 'builtin-modules';
 import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
@@ -15,6 +15,7 @@ export default function nodeResolve ( options = {} ) {
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
+	const jail = options.jail || '/';
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
@@ -61,7 +62,7 @@ export default function nodeResolve ( options = {} ) {
 							return pkg;
 						},
 						extensions: options.extensions
-					}, customResolveOptions),
+					}, customResolveOptions ),
 					( err, resolved ) => {
 						if ( err ) {
 							if ( skip === true ) accept( false );
@@ -79,6 +80,8 @@ export default function nodeResolve ( options = {} ) {
 										`behavior or 'preferBuiltins: true' to disable this warning`
 									);
 								}
+								accept( null );
+							} else if (resolved.indexOf(normalize(jail.trim(sep))) !== 0) {
 								accept( null );
 							} else {
 								accept( resolved );

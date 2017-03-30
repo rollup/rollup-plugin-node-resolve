@@ -34,7 +34,7 @@ rollup({
 
       // if there's something your bundle requires that you DON'T
       // want to include, add it to 'skip'. Local and relative imports
-      // can be skipped by giving the full filepath. E.g., 
+      // can be skipped by giving the full filepath. E.g.,
       // `path.resolve('src/relative-dependency.js')`
       skip: [ 'some-big-dependency' ],  // Default: []
 
@@ -50,7 +50,11 @@ rollup({
       // whether to prefer built-in modules (e.g. `fs`, `path`) or
       // local ones with the same names
       preferBuiltins: false  // Default: true
-      
+
+      // Lock the module search in this path (like a chroot). Module defined
+      // outside this path will be mark has external
+      jail: '/my/jail/path' // Default: '/'
+
     })
   ]
 }).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );
@@ -64,10 +68,10 @@ rollup({
     nodeResolve({ jsnext: true, main: true }),
     commonjs()
   ]
-}).then(bundle => bundle.write({ 
-  dest: 'bundle.js', 
+}).then(bundle => bundle.write({
+  dest: 'bundle.js',
   moduleName: 'MyModule',
-  format: 'iife' 
+  format: 'iife'
 })).catch(err => console.log(err.stack));
 ```
 

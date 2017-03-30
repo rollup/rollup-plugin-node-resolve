@@ -415,4 +415,26 @@ describe( 'rollup-plugin-node-resolve', function () {
 			assert.equal( err.message, 'Could not resolve \'foo\' from ' + path.resolve( __dirname, entry ) );
 		});
 	});
+
+	it( 'mark as external to module outside the jail', () => {
+		return rollup.rollup({
+			entry: 'samples/jail/main.js',
+			plugins: [ nodeResolve({
+				jail: `${__dirname}/samples/`
+			}) ]
+		}).then( (bundle) => {
+			assert.deepEqual(bundle.imports, [ 'string/uppercase.js' ]);
+		});
+	});
+
+	it( 'bundle module defined inside the jail', () => {
+		return rollup.rollup({
+			entry: 'samples/jail/main.js',
+			plugins: [ nodeResolve({
+				jail: `${__dirname}/`
+			}) ]
+		}).then( (bundle) => {
+			assert.deepEqual(bundle.imports, []);
+		});
+	});
 });
