@@ -48,7 +48,7 @@ export default function nodeResolve ( options = {} ) {
 				id = resolve( importer, '..', importee );
 			}
 
-			return new Promise( ( accept, reject ) => {
+			return new Promise( fulfil => {
 				let disregardResult = false;
 
 				resolveId(
@@ -68,17 +68,15 @@ export default function nodeResolve ( options = {} ) {
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
-						if ( resolved && fs.existsSync( resolved ) ) {
-							resolved = fs.realpathSync( resolved );
-						}
+						if ( !disregardResult && !err ) {
+							if ( resolved && fs.existsSync( resolved ) ) {
+								resolved = fs.realpathSync( resolved );
+							}
 
-						if ( err ) {
-							accept( null );
-						} else {
 							if ( resolved === COMMONJS_BROWSER_EMPTY ) {
-								accept( ES6_BROWSER_EMPTY );
+								fulfil( ES6_BROWSER_EMPTY );
 							} else if ( ~builtins.indexOf( resolved ) ) {
-								accept( null );
+								fulfil( null );
 							} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
 								if ( !isPreferBuiltinsSet ) {
 									onwarn(
@@ -87,15 +85,13 @@ export default function nodeResolve ( options = {} ) {
 										`behavior or 'preferBuiltins: true' to disable this warning`
 									);
 								}
-								accept( null );
+								fulfil( null );
 							} else if ( resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
-								accept( null );
-							} else if ( disregardResult ) {
-								accept( null );
-							} else {
-								accept( resolved );
+								fulfil( null );
 							}
 						}
+
+						fulfil( resolved );
 					}
 				);
 			});
