@@ -2,6 +2,7 @@ import { dirname, resolve, normalize, sep } from 'path';
 import builtins from 'builtin-modules';
 import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
+import fs from 'fs';
 
 const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
@@ -64,6 +65,10 @@ export default function nodeResolve ( options = {} ) {
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
+						if ( resolved && fs.existsSync( resolved ) ) {
+							resolved = fs.realpathSync( resolved );
+						}
+
 						if ( err ) {
 							if ( skip === true ) accept( false );
 							else reject( Error( `Could not resolve '${importee}' from ${normalize( importer )}` ) );
