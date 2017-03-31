@@ -437,4 +437,17 @@ describe( 'rollup-plugin-node-resolve', function () {
 			assert.deepEqual(bundle.imports, []);
 		});
 	});
+
+	it( 'allows custom options', () => {
+		return rollup.rollup({
+			entry: 'samples/custom-resolve-options/main.js',
+			plugins: [ nodeResolve({
+				customResolveOptions: {
+					moduleDirectory: 'js_modules'
+				}
+			}) ]
+		}).then( bundle => {
+			console.log( `bundle`, bundle )
+		});
+	});
 });
