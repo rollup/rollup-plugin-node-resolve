@@ -447,7 +447,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 				}
 			}) ]
 		}).then( bundle => {
-			console.log( `bundle`, bundle )
+			assert.equal(
+				bundle.modules[0].id,
+				path.resolve( __dirname, 'samples/custom-resolve-options/js_modules/foo.js' )
+			);
 		});
 	});
 });
