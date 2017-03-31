@@ -437,4 +437,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 			assert.deepEqual(bundle.imports, []);
 		});
 	});
+
+	it( 'allows custom options', () => {
+		return rollup.rollup({
+			entry: 'samples/custom-resolve-options/main.js',
+			plugins: [ nodeResolve({
+				customResolveOptions: {
+					moduleDirectory: 'js_modules'
+				}
+			}) ]
+		}).then( bundle => {
+			assert.equal(
+				bundle.modules[0].id,
+				path.resolve( __dirname, 'samples/custom-resolve-options/js_modules/foo.js' )
+			);
+		});
+	});
 });

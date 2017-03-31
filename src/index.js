@@ -14,6 +14,7 @@ export default function nodeResolve ( options = {} ) {
 	const useMain = options.main !== false;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
+	const customResolveOptions = options.customResolveOptions || {};
 	const jail = options.jail || '/';
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
@@ -44,7 +45,7 @@ export default function nodeResolve ( options = {} ) {
 			return new Promise( ( accept, reject ) => {
 				resolveId(
 					importee,
-					{
+					Object.assign({
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
 							if ( !useJsnext && !useMain && !useModule ) {
@@ -61,7 +62,7 @@ export default function nodeResolve ( options = {} ) {
 							return pkg;
 						},
 						extensions: options.extensions
-					},
+					}, customResolveOptions ),
 					( err, resolved ) => {
 						if ( err ) {
 							if ( skip === true ) accept( false );
