@@ -1,5 +1,11 @@
 # rollup-plugin-node-resolve changelog
 
+## 2.1.0
+
+* Add `jail` option ([#53](https://github.com/rollup/rollup-plugin-node-resolve/pull/53))
+* Add `customResolveOptions` option ([#79](https://github.com/rollup/rollup-plugin-node-resolve/pull/79))
+* Support symlinked packages ([#82](https://github.com/rollup/rollup-plugin-node-resolve/pull/82))
+
 ## 2.0.0
 
 * Add support `module` field in package.json as an official alternative to jsnext
