@@ -95,24 +95,6 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'allows skipping by package name', function () {
-		return rollup.rollup({
-			entry: 'samples/skip/main.js',
-			plugins: [
-				nodeResolve({
-					main: true,
-					skip: [ 'vlq' ]
-				})
-			]
-		}).then( function ( bundle ) {
-			const generated = bundle.generate({
-				format: 'cjs'
-			});
-
-			assert.ok( generated.code.indexOf( 'encode' ) < 0 );
-		});
-	});
-
 	it( 'disregards top-level browser field by default', function () {
 		return rollup.rollup({
 			entry: 'samples/browser/main.js',
@@ -183,99 +165,6 @@ describe( 'rollup-plugin-node-resolve', function () {
 				})
 			]
 		}).then( executeBundle );
-	});
-
-	it( 'skips builtins', function () {
-		return rollup.rollup({
-			entry: 'samples/builtins/main.js',
-			plugins: [ nodeResolve() ]
-		}).then( bundle => {
-			const { code } = bundle.generate({ format: 'cjs' });
-			const fn = new Function ( 'module', 'exports', 'require', code );
-
-			fn( module, module.exports, id => require( id ) );
-
-			assert.equal( module.exports, path.sep );
-		});
-	});
-
-	it( 'allows scoped packages to be skipped', () => {
-		return rollup.rollup({
-			entry: 'samples/scoped/main.js',
-			plugins: [
-				nodeResolve({
-					skip: [ '@scoped/foo' ]
-				})
-			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ '@scoped/foo' ]);
-		});
-	});
-
-	it( 'skip: true allows all unfound non-jsnext:main dependencies to be skipped without error', () => {
-		return rollup.rollup({
-			entry: 'samples/skip-true/main.js',
-			plugins: [
-				nodeResolve({
-					jsnext: true,
-					module: false,
-					main: false,
-					skip: true
-				})
-			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'legacy', 'missing', 'module' ]);
-		});
-	});
-
-	it( 'skip: true allows all unfound non-module dependencies to be skipped without error', () => {
-		return rollup.rollup({
-			entry: 'samples/skip-true/main.js',
-			plugins: [
-				nodeResolve({
-					jsnext: false,
-					module: true,
-					main: false,
-					skip: true,
-					preferBuiltins: false
-				})
-			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing' ]);
-		});
-	});
-
-	it( 'skip: allows for a relative file to be skipped, even if the file doesn\'t exist', () => {
-		const externalFile = path.resolve( __dirname, 'samples/skip-nonexistent-relative/nonexistent-relative-dependency.js' );
-		return rollup.rollup({
-			entry: 'samples/skip-nonexistent-relative/main.js',
-			external: [ externalFile ],
-			plugins: [
-				nodeResolve({
-					jsnext: true,
-					main: false,
-					skip: [ externalFile ]
-				})
-			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ externalFile ]);
-		});
-	});
-
-	it( 'skip: true allows all unfound dependencies to be skipped without error', () => {
-		return rollup.rollup({
-			entry: 'samples/skip-true/main.js',
-			plugins: [
-				nodeResolve({
-					jsnext: false,
-					main: false,
-					module: false,
-					skip: true
-				})
-			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'jsnext', 'legacy', 'missing', 'module' ] );
-		});
 	});
 
 	it( 'preferBuiltins: true allows preferring a builtin to a local module of the same name', () => {
@@ -374,13 +263,13 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			entry: 'samples/symlinked/first/index.js',
 			plugins: [
-				nodeResolve()				
+				nodeResolve()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports.number1, module.exports.number2 );
-		}).then(() => { 
+		}).then(() => {
 			unlinkDirectories();
-		}).catch(err => { 
+		}).catch(err => {
 			unlinkDirectories();
 			throw err;
 		});
@@ -391,7 +280,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			createDirectory( './samples/symlinked/third/node_modules' );
 		}
 
-		function createDirectory ( pathToDir ) { 
+		function createDirectory ( pathToDir ) {
 			if ( !fs.existsSync( pathToDir ) ) {
 				fs.mkdirSync( pathToDir );
 			}
@@ -442,21 +331,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		}).then( () => {
 			throw Error( 'test should fail' );
 		}, err => {
-			assert.equal( err.message, 'Could not resolve \'./foo\' from ' + path.resolve( __dirname, entry ) );
-		});
-	});
-
-	it( 'throws error if global id is not resolved', () => {
-		const entry = 'samples/unresolved-global/main.js';
-		return rollup.rollup({
-			entry,
-			plugins: [
-				nodeResolve()
-			]
-		}).then( () => {
-			throw Error( 'test should fail' );
-		}, err => {
-			assert.equal( err.message, 'Could not resolve \'foo\' from ' + path.resolve( __dirname, entry ) );
+			assert.equal( err.message, `Could not resolve './foo' from ${entry}` );
 		});
 	});
 

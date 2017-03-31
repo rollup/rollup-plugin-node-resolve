@@ -9,10 +9,9 @@ const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
 
 export default function nodeResolve ( options = {} ) {
-	const skip = options.skip || [];
-	const useJsnext = options.jsnext === true;
 	const useModule = options.module !== false;
 	const useMain = options.main !== false;
+	const useJsnext = options.jsnext === true;
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
@@ -20,6 +19,14 @@ export default function nodeResolve ( options = {} ) {
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
+
+	if ( options.skip ) {
+		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `externals` option instead' );
+	}
+
+	if ( !useModule && !useMain && !useJsnext ) {
+		throw new Error( `At least one of options.module, options.main or options.jsnext must be true` );
+	}
 
 	return {
 		name: 'node-resolve',
@@ -41,24 +48,20 @@ export default function nodeResolve ( options = {} ) {
 				id = resolve( importer, '..', importee );
 			}
 
-			if ( skip !== true && ~skip.indexOf( id ) ) return null;
-
 			return new Promise( ( accept, reject ) => {
+				let disregardResult = false;
+
 				resolveId(
 					importee,
 					Object.assign({
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
-							if ( !useJsnext && !useMain && !useModule ) {
-								if ( skip === true ) accept( false );
-								else reject( Error( `To import from a package in node_modules (${importee}), either options.jsnext, options.module or options.main must be true` ) );
-							} else if ( useModule && pkg[ 'module' ] ) {
+							if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
 							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
 								pkg[ 'main' ] = pkg[ 'jsnext:main' ];
 							} else if ( ( useJsnext || useModule ) && !useMain ) {
-								if ( skip === true ) accept( false );
-								else reject( Error( `Package ${importee} (imported by ${importer}) does not have a module or jsnext:main field. You should either allow legacy modules with options.main, or skip it with options.skip = ['${importee}'])` ) );
+								disregardResult = true;
 							}
 							return pkg;
 						},
@@ -70,8 +73,7 @@ export default function nodeResolve ( options = {} ) {
 						}
 
 						if ( err ) {
-							if ( skip === true ) accept( false );
-							else reject( Error( `Could not resolve '${importee}' from ${normalize( importer )}` ) );
+							accept( null );
 						} else {
 							if ( resolved === COMMONJS_BROWSER_EMPTY ) {
 								accept( ES6_BROWSER_EMPTY );
@@ -86,7 +88,9 @@ export default function nodeResolve ( options = {} ) {
 									);
 								}
 								accept( null );
-							} else if (resolved.indexOf(normalize(jail.trim(sep))) !== 0) {
+							} else if ( resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
+								accept( null );
+							} else if ( disregardResult ) {
 								accept( null );
 							} else {
 								accept( resolved );
