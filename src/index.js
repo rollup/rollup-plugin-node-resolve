@@ -16,7 +16,7 @@ export default function nodeResolve ( options = {} ) {
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
-	const jail = options.jail || '/';
+	const jail = options.jail;
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
 	const resolveId = options.browser ? browserResolve : _nodeResolve;
@@ -86,7 +86,7 @@ export default function nodeResolve ( options = {} ) {
 									);
 								}
 								accept( null );
-							} else if (resolved.indexOf(normalize(jail.trim(sep))) !== 0) {
+							} else if ( jail && resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
 								accept( null );
 							} else {
 								accept( resolved );
