@@ -13,13 +13,17 @@ npm install --save-dev rollup-plugin-node-resolve
 ## Usage
 
 ```js
+// rollup.config.js
 import { rollup } from 'rollup';
-import nodeResolve from 'rollup-plugin-node-resolve';
+import resolve from 'rollup-plugin-node-resolve';
 
-rollup({
+export default {
   entry: 'main.js',
+  dest: 'bundle.js',
+  moduleName: 'MyModule',
+  format: 'iife'
   plugins: [
-    nodeResolve({
+    resolve({
       // use "module" field for ES6 module if possible
       module: true, // Default: true
 
@@ -53,26 +57,38 @@ rollup({
 
       // Lock the module search in this path (like a chroot). Module defined
       // outside this path will be mark has external
-      jail: '/my/jail/path' // Default: '/'
+      jail: '/my/jail/path', // Default: '/'
 
+      // Any additional options that should be passed through
+      // to node-resolve
+      customResolveOptions: {
+        moduleDirectory: 'js_modules'
+      }
     })
   ]
-}).then( bundle => bundle.write({ dest: 'bundle.js', format: 'iife' }) );
+};
+```
 
-// alongside rollup-plugin-commonjs, for using non-ES6 third party modules
+## Using with rollup-plugin-commonjs
+
+Since most packages in your node_modules folder are probably legacy CommonJS rather than JavaScript modules, you may need to use [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs):
+
+```js
+// rollup.config.js
+import { rollup } from 'rollup';
+import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 
-rollup({
+export default {
   entry: 'main.js',
-  plugins: [
-    nodeResolve({ jsnext: true, main: true }),
-    commonjs()
-  ]
-}).then(bundle => bundle.write({
   dest: 'bundle.js',
   moduleName: 'MyModule',
   format: 'iife'
-})).catch(err => console.log(err.stack));
+  plugins: [
+    resolve({ jsnext: true, main: true }),
+    commonjs()
+  ]
+};
 ```
 
 
