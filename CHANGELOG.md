@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 2.1.1
+
+* Prevent `jail` from breaking builds on Windows ([#93](https://github.com/rollup/rollup-plugin-node-resolve/issues/93))
+
 ## 2.1.0
 
 * Add `jail` option ([#53](https://github.com/rollup/rollup-plugin-node-resolve/pull/53))

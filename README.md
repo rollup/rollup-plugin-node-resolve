@@ -53,7 +53,7 @@ export default {
 
       // whether to prefer built-in modules (e.g. `fs`, `path`) or
       // local ones with the same names
-      preferBuiltins: false  // Default: true
+      preferBuiltins: false,  // Default: true
 
       // Lock the module search in this path (like a chroot). Module defined
       // outside this path will be mark has external
