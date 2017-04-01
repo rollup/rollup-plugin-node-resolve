@@ -1,5 +1,10 @@
 # rollup-plugin-node-resolve changelog
 
+## 3.0.0
+
+* [BREAKING] Remove `options.skip` ([#90](https://github.com/rollup/rollup-plugin-node-resolve/pull/90))
+* Add `modulesOnly` option ([#96](https://github.com/rollup/rollup-plugin-node-resolve/pull/96))
+
 ## 2.1.1
 
 * Prevent `jail` from breaking builds on Windows ([#93](https://github.com/rollup/rollup-plugin-node-resolve/issues/93))

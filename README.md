@@ -53,6 +53,10 @@ export default {
       // outside this path will be mark has external
       jail: '/my/jail/path', // Default: '/'
 
+      // If true, inspect resolved files to check that they are
+      // ES2015 modules
+      modulesOnly: true, // Default: false
+
       // Any additional options that should be passed through
       // to node-resolve
       customResolveOptions: {
