@@ -335,20 +335,6 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'throws error if global id is not resolved', () => {
-		const entry = 'samples/unresolved-global/main.js';
-		return rollup.rollup({
-			entry,
-			plugins: [
-				nodeResolve()
-			]
-		}).then( () => {
-			throw Error( 'test should fail' );
-		}, err => {
-			assert.equal( err.message, 'Could not resolve \'foo\' from ' + path.resolve( __dirname, entry ).split( '/' ).join( path.sep )  );
-		});
-	});
-
 	it( 'mark as external to module outside the jail', () => {
 		return rollup.rollup({
 			entry: 'samples/jail/main.js',
