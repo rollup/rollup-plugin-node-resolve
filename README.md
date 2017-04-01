@@ -36,12 +36,6 @@ export default {
       // – see https://github.com/rollup/rollup-plugin-commonjs
       main: true,  // Default: true
 
-      // if there's something your bundle requires that you DON'T
-      // want to include, add it to 'skip'. Local and relative imports
-      // can be skipped by giving the full filepath. E.g.,
-      // `path.resolve('src/relative-dependency.js')`
-      skip: [ 'some-big-dependency' ],  // Default: []
-
       // some package.json files have a `browser` field which
       // specifies alternative files to load for people bundling
       // for the browser. If that's you, use this option, otherwise
