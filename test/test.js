@@ -374,13 +374,13 @@ describe( 'rollup-plugin-node-resolve', function () {
 		return rollup.rollup({
 			entry: 'samples/symlinked/first/index.js',
 			plugins: [
-				nodeResolve()				
+				nodeResolve()
 			]
 		}).then( executeBundle ).then( module => {
 			assert.equal( module.exports.number1, module.exports.number2 );
-		}).then(() => { 
+		}).then(() => {
 			unlinkDirectories();
-		}).catch(err => { 
+		}).catch(err => {
 			unlinkDirectories();
 			throw err;
 		});
@@ -391,7 +391,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			createDirectory( './samples/symlinked/third/node_modules' );
 		}
 
-		function createDirectory ( pathToDir ) { 
+		function createDirectory ( pathToDir ) {
 			if ( !fs.existsSync( pathToDir ) ) {
 				fs.mkdirSync( pathToDir );
 			}
@@ -456,7 +456,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		}).then( () => {
 			throw Error( 'test should fail' );
 		}, err => {
-			assert.equal( err.message, 'Could not resolve \'foo\' from ' + path.resolve( __dirname, entry ) );
+			assert.equal( err.message, 'Could not resolve \'foo\' from ' + path.resolve( __dirname, entry ).split( '/' ).join( path.sep )  );
 		});
 	});
 
