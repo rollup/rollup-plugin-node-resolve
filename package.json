@@ -17,7 +17,8 @@
   "module": "dist/rollup-plugin-node-resolve.es.js",
   "jsnext:main": "dist/rollup-plugin-node-resolve.es.js",
   "scripts": {
-    "pretest": "rollup -c",
+    "build": "rollup -c",
+    "pretest": "npm run build",
     "test": "mocha",
     "posttest": "eslint src test/*.js",
     "prepublish": "npm test",
@@ -30,6 +31,7 @@
   "dependencies": {
     "browser-resolve": "^1.11.0",
     "builtin-modules": "^1.1.0",
+    "is-module": "^1.0.0",
     "resolve": "^1.1.6"
   },
   "repository": "rollup/rollup-plugin-node-resolve",

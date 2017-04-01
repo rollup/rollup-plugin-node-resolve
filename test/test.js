@@ -372,4 +372,15 @@ describe( 'rollup-plugin-node-resolve', function () {
 			);
 		});
 	});
+
+	it( 'ignores deep-import non-modules', () => {
+		return rollup.rollup({
+			entry: 'samples/deep-import-non-module/main.js',
+			plugins: [ nodeResolve({
+				modulesOnly: true
+			}) ]
+		}).then( bundle => {
+			assert.deepEqual( bundle.imports, [ 'foo/deep' ] );
+		});
+	});
 });

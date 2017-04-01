@@ -2,6 +2,7 @@ import { dirname, resolve, normalize, sep } from 'path';
 import builtins from 'builtin-modules';
 import _nodeResolve from 'resolve';
 import browserResolve from 'browser-resolve';
+import isModule from 'is-module';
 import fs from 'fs';
 
 const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
@@ -48,7 +49,7 @@ export default function nodeResolve ( options = {} ) {
 				id = resolve( importer, '..', importee );
 			}
 
-			return new Promise( fulfil => {
+			return new Promise( ( fulfil, reject ) => {
 				let disregardResult = false;
 
 				resolveId(
@@ -91,7 +92,18 @@ export default function nodeResolve ( options = {} ) {
 							}
 						}
 
-						fulfil( resolved );
+						if ( options.modulesOnly ) {
+							fs.readFile( resolved, 'utf-8', ( err, code ) => {
+								if ( err ) {
+									reject( err );
+								} else {
+									const valid = isModule( code );
+									fulfil( valid ? resolved : null );
+								}
+							});
+						} else {
+							fulfil( resolved );
+						}
 					}
 				);
 			});
