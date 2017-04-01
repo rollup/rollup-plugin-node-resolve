@@ -92,7 +92,7 @@ export default function nodeResolve ( options = {} ) {
 							}
 						}
 
-						if ( options.modulesOnly ) {
+						if ( resolved && options.modulesOnly ) {
 							fs.readFile( resolved, 'utf-8', ( err, code ) => {
 								if ( err ) {
 									reject( err );
