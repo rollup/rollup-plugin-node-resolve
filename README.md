@@ -14,14 +14,15 @@ npm install --save-dev rollup-plugin-node-resolve
 
 ```js
 // rollup.config.js
-import { rollup } from 'rollup';
 import resolve from 'rollup-plugin-node-resolve';
 
 export default {
-  entry: 'main.js',
-  dest: 'bundle.js',
-  moduleName: 'MyModule',
-  format: 'iife',
+  input: 'main.js',
+  output: {
+    file: 'bundle.js',
+    format: 'iife'
+  },
+  name: 'MyModule',
   plugins: [
     resolve({
       // use "module" field for ES6 module if possible
@@ -73,17 +74,18 @@ Since most packages in your node_modules folder are probably legacy CommonJS rat
 
 ```js
 // rollup.config.js
-import { rollup } from 'rollup';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 
 export default {
-  entry: 'main.js',
-  dest: 'bundle.js',
-  moduleName: 'MyModule',
-  format: 'iife',
+  input: 'main.js',
+  output: {
+    file: 'bundle.js',
+    format: 'iife'
+  },
+  name: 'MyModule',
   plugins: [
-    resolve({ jsnext: true, main: true }),
+    resolve(),
     commonjs()
   ]
 };
