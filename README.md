@@ -51,7 +51,7 @@ export default {
       preferBuiltins: false,  // Default: true
 
       // Lock the module search in this path (like a chroot). Module defined
-      // outside this path will be mark has external
+      // outside this path will be marked as external
       jail: '/my/jail/path', // Default: '/'
 
       // If true, inspect resolved files to check that they are
