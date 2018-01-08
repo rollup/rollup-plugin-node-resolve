@@ -1,11 +1,9 @@
-import { dirname, resolve, normalize, sep } from 'path';
+import { dirname, resolve, extname, normalize, sep } from 'path';
 import builtins from 'builtin-modules';
-import _nodeResolve from 'resolve';
-import browserResolve from 'browser-resolve';
+import resolveId from 'resolve';
 import isModule from 'is-module';
 import fs from 'fs';
 
-const COMMONJS_BROWSER_EMPTY = _nodeResolve.sync( 'browser-resolve/empty.js', __dirname );
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
 
@@ -17,9 +15,9 @@ export default function nodeResolve ( options = {} ) {
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
 	const jail = options.jail;
+	const browserMapCache = {};
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
-	const resolveId = options.browser ? browserResolve : _nodeResolve;
 
 	if ( options.skip ) {
 		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
@@ -38,6 +36,17 @@ export default function nodeResolve ( options = {} ) {
 			// disregard entry module
 			if ( !importer ) return null;
 
+			if (options.browser && browserMapCache[importer]) {
+				const browser = browserMapCache[importer];
+				if (browser[importee]) {
+					importee = browser[importee];
+				}
+				if (browser[importee] === false) {
+					return ES6_BROWSER_EMPTY;
+				}
+			}
+
+
 			const parts = importee.split( /[\/\\]/ );
 			let id = parts.shift();
 
@@ -51,13 +60,26 @@ export default function nodeResolve ( options = {} ) {
 
 			return new Promise( ( fulfil, reject ) => {
 				let disregardResult = false;
+				let packageBrowserField = false;
 
 				resolveId(
 					importee,
 					Object.assign({
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
-							if ( useModule && pkg[ 'module' ] ) {
+							if (options.browser && typeof pkg[ 'browser' ] === 'object') {
+								packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
+									browser[ key ] = pkg[ 'browser' ][key];
+									if (key[0] === '.' && !extname(key)) browser[ key + '.js'] = browser[ key + '.json' ] = browser[ key ];
+									return browser;
+								}, {});
+							}
+
+							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
+								pkg[ 'main' ] = pkg[ 'browser' ];
+							} else if (options.browser && pkg[ 'browser' ][ pkg[ 'main' ] ]) {
+								pkg[ 'main' ] = pkg[ 'browser' ][ pkg[ 'main' ] ];
+							} else if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
 							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
 								pkg[ 'main' ] = pkg[ 'jsnext:main' ];
@@ -69,14 +91,14 @@ export default function nodeResolve ( options = {} ) {
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
+						if (options.browser && packageBrowserField) browserMapCache[resolved] = packageBrowserField;
+
 						if ( !disregardResult && !err ) {
 							if ( resolved && fs.existsSync( resolved ) ) {
 								resolved = fs.realpathSync( resolved );
 							}
 
-							if ( resolved === COMMONJS_BROWSER_EMPTY ) {
-								fulfil( ES6_BROWSER_EMPTY );
-							} else if ( ~builtins.indexOf( resolved ) ) {
+							if ( ~builtins.indexOf( resolved ) ) {
 								fulfil( null );
 							} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
 								if ( !isPreferBuiltinsSet ) {
