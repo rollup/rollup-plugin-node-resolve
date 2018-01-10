@@ -77,7 +77,7 @@ export default function nodeResolve ( options = {} ) {
 
 							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 								pkg[ 'main' ] = pkg[ 'browser' ];
-							} else if (options.browser && pkg[ 'browser' ][ pkg[ 'main' ] ]) {
+							} else if (options.browser && typeof pkg[ 'browser' ] === 'object' && pkg[ 'browser' ][ pkg[ 'main' ] ]) {
 								pkg[ 'main' ] = pkg[ 'browser' ][ pkg[ 'main' ] ];
 							} else if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
