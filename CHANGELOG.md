@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 3.0.2
+
+* Ensure `pkg.browser` is an object if necessary ([#129](https://github.com/rollup/rollup-plugin-node-resolve/pull/129))
+
 ## 3.0.1
 
 * Remove `browser-resolve` dependency ([#127](https://github.com/rollup/rollup-plugin-node-resolve/pull/127))
