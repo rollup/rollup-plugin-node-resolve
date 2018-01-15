@@ -6,7 +6,6 @@ import fs from 'fs';
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
-const exts = [ '.js', '.json', '.node' ];
 
 export default function nodeResolve ( options = {} ) {
 	const useModule = options.module !== false;
@@ -77,19 +76,17 @@ export default function nodeResolve ( options = {} ) {
 									if ( key[0] === '.' ) {
 										const absoluteKey = resolve( pkgRoot, key );
 										browser[ absoluteKey ] = resolved;
-										if ( !extname(key) ) {
-											exts.reduce( ( browser, ext ) => {
-												browser[ absoluteKey + ext ] = browser[ key ];
-												return browser;
-											}, browser );
-										}
+										if (!extname(key)) browser[ absoluteKey + '.js'] = browser[ absoluteKey+ '.json' ] = browser[ key ];
 									}
 									return browser;
 								}, {});
 							}
 
+							const absoluteMain = pkg[ 'main' ] ? resolve( pkgRoot, pkg[ 'main' ] ) : false;
 							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 								pkg[ 'main' ] = pkg[ 'browser' ];
+							} else if (options.browser && packageBrowserField && (packageBrowserField[ pkg[ 'main' ] ] || packageBrowserField[ absoluteMain ])) {
+								pkg[ 'main' ] = packageBrowserField[ pkg[ 'main' ] ] || packageBrowserField[ absoluteMain ];
 							} else if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
 							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
@@ -102,12 +99,7 @@ export default function nodeResolve ( options = {} ) {
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
-						if (options.browser && packageBrowserField) {
-							if (packageBrowserField[ resolved ]) {
-								resolved = packageBrowserField[ resolved ];
-							}
-							browserMapCache[resolved] = packageBrowserField;
-						}
+						if (options.browser && packageBrowserField) browserMapCache[resolved] = packageBrowserField;
 
 						if ( !disregardResult && !err ) {
 							if ( resolved && fs.existsSync( resolved ) ) {
