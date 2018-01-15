@@ -155,6 +155,52 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'allows use of object browser field, resolving `main`', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object-main/main.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'browser' );
+			assert.equal( module.exports.dep, 'browser-dep' );
+			assert.equal( module.exports.test, 43 );
+		});
+	});
+
+	it( 'allows use of object browser field, resolving replaced builtins', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object-builtin/main.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'browser-fs' );
+		});
+	});
+
+	it( 'allows use of object browser field, resolving nested directories', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object-nested/main.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'browser' );
+			assert.equal( module.exports.dep, 'browser-dep' );
+			assert.equal( module.exports.test, 43 );
+		});
+	});
+
 	it( 'supports `false` in browser field', function () {
 		return rollup.rollup({
 			entry: 'samples/browser-false/main.js',
