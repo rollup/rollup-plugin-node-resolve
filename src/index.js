@@ -37,12 +37,13 @@ export default function nodeResolve ( options = {} ) {
 			if ( !importer ) return null;
 
 			if (options.browser && browserMapCache[importer]) {
+				const resolvedImportee = resolve( dirname( importer ), importee );
 				const browser = browserMapCache[importer];
-				if (browser[importee]) {
-					importee = browser[importee];
-				}
-				if (browser[importee] === false) {
+				if (browser[importee] === false || browser[resolvedImportee] === false) {
 					return ES6_BROWSER_EMPTY;
+				}
+				if (browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json']) {
+					importee = browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json'];
 				}
 			}
 
@@ -66,19 +67,26 @@ export default function nodeResolve ( options = {} ) {
 					importee,
 					Object.assign({
 						basedir: dirname( importer ),
-						packageFilter ( pkg ) {
+						packageFilter ( pkg, pkgPath ) {
+							const pkgRoot = dirname( pkgPath );
 							if (options.browser && typeof pkg[ 'browser' ] === 'object') {
 								packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-									browser[ key ] = pkg[ 'browser' ][key];
-									if (key[0] === '.' && !extname(key)) browser[ key + '.js'] = browser[ key + '.json' ] = browser[ key ];
+									const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
+									browser[ key ] = resolved;
+									if ( key[0] === '.' ) {
+										const absoluteKey = resolve( pkgRoot, key );
+										browser[ absoluteKey ] = resolved;
+										if (!extname(key)) browser[ absoluteKey + '.js'] = browser[ absoluteKey+ '.json' ] = browser[ key ];
+									}
 									return browser;
 								}, {});
 							}
 
+							const absoluteMain = pkg[ 'main' ] ? resolve( pkgRoot, pkg[ 'main' ] ) : false;
 							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 								pkg[ 'main' ] = pkg[ 'browser' ];
-							} else if (options.browser && typeof pkg[ 'browser' ] === 'object' && pkg[ 'browser' ][ pkg[ 'main' ] ]) {
-								pkg[ 'main' ] = pkg[ 'browser' ][ pkg[ 'main' ] ];
+							} else if (options.browser && packageBrowserField && (packageBrowserField[ pkg[ 'main' ] ] || packageBrowserField[ absoluteMain ])) {
+								pkg[ 'main' ] = packageBrowserField[ pkg[ 'main' ] ] || packageBrowserField[ absoluteMain ];
 							} else if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
 							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
