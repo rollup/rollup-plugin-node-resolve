@@ -9,22 +9,22 @@ const fs = require( 'fs' );
 process.chdir( __dirname );
 
 function executeBundle ( bundle ) {
-	const generated = bundle.generate({
+	return bundle.generate({
 		format: 'cjs'
+	}).then( generated => {
+		const fn = new Function ( 'module', 'exports', 'assert', generated.code );
+		const module = { exports: {} };
+	
+		fn( module, module.exports, assert );
+	
+		return module;
 	});
-
-	const fn = new Function ( 'module', 'exports', 'assert', generated.code );
-	const module = { exports: {} };
-
-	fn( module, module.exports, assert );
-
-	return module;
 }
 
 describe( 'rollup-plugin-node-resolve', function () {
 	it( 'finds a module with jsnext:main', function () {
 		return rollup.rollup({
-			entry: 'samples/jsnext/main.js',
+			input: 'samples/jsnext/main.js',
 			plugins: [
 				nodeResolve({ jsnext: true })
 			]
@@ -35,7 +35,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'finds and converts a basic CommonJS module', function () {
 		return rollup.rollup({
-			entry: 'samples/commonjs/main.js',
+			input: 'samples/commonjs/main.js',
 			plugins: [
 				nodeResolve({ main: true }),
 				commonjs()
@@ -47,7 +47,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'handles a trailing slash', function () {
 		return rollup.rollup({
-			entry: 'samples/trailing-slash/main.js',
+			input: 'samples/trailing-slash/main.js',
 			plugins: [
 				nodeResolve({ main: true }),
 				commonjs()
@@ -59,7 +59,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'finds a file inside a package directory', function () {
 		return rollup.rollup({
-			entry: 'samples/granular/main.js',
+			input: 'samples/granular/main.js',
 			plugins: [
 				nodeResolve(),
 				buble()
@@ -71,7 +71,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'loads local directories by finding index.js within them', function () {
 		return rollup.rollup({
-			entry: 'samples/local-index/main.js',
+			input: 'samples/local-index/main.js',
 			plugins: [
 				nodeResolve()
 			]
@@ -82,22 +82,22 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'loads package directories by finding index.js within them', function () {
 		return rollup.rollup({
-			entry: 'samples/package-index/main.js',
+			input: 'samples/package-index/main.js',
 			plugins: [
 				nodeResolve()
 			]
 		}).then( function ( bundle ) {
-			const generated = bundle.generate({
+			return bundle.generate({
 				format: 'cjs'
 			});
-
+		}).then( generated => {
 			assert.ok( ~generated.code.indexOf( 'setPrototypeOf' ) );
 		});
 	});
 
 	it( 'disregards top-level browser field by default', function () {
 		return rollup.rollup({
-			entry: 'samples/browser/main.js',
+			input: 'samples/browser/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -111,7 +111,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of the top-level browser field', function () {
 		return rollup.rollup({
-			entry: 'samples/browser/main.js',
+			input: 'samples/browser/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -125,7 +125,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'disregards object browser field by default', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main.js',
+			input: 'samples/browser-object/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -141,7 +141,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of the object browser field', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main.js',
+			input: 'samples/browser-object/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -157,7 +157,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'supports `false` in browser field', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-false/main.js',
+			input: 'samples/browser-false/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -169,7 +169,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'preferBuiltins: true allows preferring a builtin to a local module of the same name', () => {
 		return rollup.rollup({
-			entry: 'samples/prefer-builtin/main.js',
+			input: 'samples/prefer-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					preferBuiltins: true
@@ -182,7 +182,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'preferBuiltins: false allows resolving a local module with the same name as a builtin module', () => {
 		return rollup.rollup({
-			entry: 'samples/prefer-builtin/main.js',
+			input: 'samples/prefer-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					preferBuiltins: false
@@ -196,7 +196,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 	it( 'issues a warning when preferring a builtin module without having explicit configuration', () => {
 		let warning = null;
 		return rollup.rollup({
-			entry: 'samples/prefer-builtin/main.js',
+			input: 'samples/prefer-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					onwarn ( message ) {
@@ -219,7 +219,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'supports non-standard extensions', () => {
 		return rollup.rollup({
-			entry: 'samples/extensions/main.js',
+			input: 'samples/extensions/main.js',
 			plugins: [
 				nodeResolve({
 					extensions: [ '.js', '.wut' ]
@@ -236,7 +236,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'finds a module with module field', () => {
 		return rollup.rollup({
-			entry: 'samples/module/main.js',
+			input: 'samples/module/main.js',
 			plugins: [
 				nodeResolve({ preferBuiltins: false })
 			]
@@ -247,7 +247,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'prefers module field over jsnext:main and main', () => {
 		return rollup.rollup({
-			entry: 'samples/prefer-module/main.js',
+			input: 'samples/prefer-module/main.js',
 			plugins: [
 				nodeResolve({ jsnext: true, preferBuiltins: false })
 			]
@@ -261,7 +261,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		linkDirectories();
 
 		return rollup.rollup({
-			entry: 'samples/symlinked/first/index.js',
+			input: 'samples/symlinked/first/index.js',
 			plugins: [
 				nodeResolve()
 			]
@@ -301,7 +301,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'prefers jsnext:main field over main', () => {
 		return rollup.rollup({
-			entry: 'samples/prefer-jsnext/main.js',
+			input: 'samples/prefer-jsnext/main.js',
 			plugins: [
 				nodeResolve({ jsnext: true, module: false, preferBuiltins: false })
 			]
@@ -312,7 +312,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'supports ./ in entry filename', () => {
 		return rollup.rollup({
-			entry: './samples/jsnext/main.js',
+			input: './samples/jsnext/main.js',
 			plugins: [
 				nodeResolve({ jsnext: true })
 			]
@@ -337,7 +337,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'mark as external to module outside the jail', () => {
 		return rollup.rollup({
-			entry: 'samples/jail/main.js',
+			input: 'samples/jail/main.js',
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/samples/`
 			}) ]
@@ -348,7 +348,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'bundle module defined inside the jail', () => {
 		return rollup.rollup({
-			entry: 'samples/jail/main.js',
+			input: 'samples/jail/main.js',
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/`
 			}) ]
@@ -359,7 +359,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows custom options', () => {
 		return rollup.rollup({
-			entry: 'samples/custom-resolve-options/main.js',
+			input: 'samples/custom-resolve-options/main.js',
 			plugins: [ nodeResolve({
 				customResolveOptions: {
 					moduleDirectory: 'js_modules'
@@ -375,7 +375,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'ignores deep-import non-modules', () => {
 		return rollup.rollup({
-			entry: 'samples/deep-import-non-module/main.js',
+			input: 'samples/deep-import-non-module/main.js',
 			plugins: [ nodeResolve({
 				modulesOnly: true
 			}) ]
