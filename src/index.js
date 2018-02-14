@@ -82,11 +82,8 @@ export default function nodeResolve ( options = {} ) {
 								}, {});
 							}
 
-							const absoluteMain = pkg[ 'main' ] ? resolve( pkgRoot, pkg[ 'main' ] ) : false;
 							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 								pkg[ 'main' ] = pkg[ 'browser' ];
-							} else if (options.browser && packageBrowserField && (packageBrowserField[ pkg[ 'main' ] ] || packageBrowserField[ absoluteMain ])) {
-								pkg[ 'main' ] = packageBrowserField[ pkg[ 'main' ] ] || packageBrowserField[ absoluteMain ];
 							} else if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
 							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
@@ -99,7 +96,12 @@ export default function nodeResolve ( options = {} ) {
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
-						if (options.browser && packageBrowserField) browserMapCache[resolved] = packageBrowserField;
+						if (options.browser && packageBrowserField) {
+							if (packageBrowserField[ resolved ]) {
+								resolved = packageBrowserField[ resolved ];
+							}
+							browserMapCache[resolved] = packageBrowserField;
+						}
 
 						if ( !disregardResult && !err ) {
 							if ( resolved && fs.existsSync( resolved ) ) {

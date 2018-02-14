@@ -231,6 +231,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( 'allows use of object browser field, resolving implicit `main`', function () {
+		return rollup.rollup({
+			entry: 'samples/browser-object/main-implicit.js',
+			plugins: [
+				nodeResolve({
+					main: true,
+					browser: true
+				})
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports.env, 'browser' );
+		});
+	});
+
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
 			entry: 'samples/browser-object-builtin/main.js',
