@@ -6,6 +6,7 @@ import fs from 'fs';
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
+const exts = [ '.js', '.json', '.node' ];
 
 export default function nodeResolve ( options = {} ) {
 	const useModule = options.module !== false;
@@ -76,7 +77,12 @@ export default function nodeResolve ( options = {} ) {
 									if ( key[0] === '.' ) {
 										const absoluteKey = resolve( pkgRoot, key );
 										browser[ absoluteKey ] = resolved;
-										if (!extname(key)) browser[ absoluteKey + '.js'] = browser[ absoluteKey+ '.json' ] = browser[ key ];
+										if ( !extname(key) ) {
+											exts.reduce( ( browser, ext ) => {
+												browser[ absoluteKey + ext ] = browser[ key ];
+												return browser;
+											}, browser );
+										}
 									}
 									return browser;
 								}, {});
