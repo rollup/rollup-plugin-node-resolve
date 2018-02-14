@@ -6,6 +6,7 @@ import fs from 'fs';
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
+const exts = [ '.js', '.json', '.node' ];
 
 export default function nodeResolve ( options = {} ) {
 	const useModule = options.module !== false;
@@ -37,12 +38,13 @@ export default function nodeResolve ( options = {} ) {
 			if ( !importer ) return null;
 
 			if (options.browser && browserMapCache[importer]) {
+				const resolvedImportee = resolve( dirname( importer ), importee );
 				const browser = browserMapCache[importer];
-				if (browser[importee]) {
-					importee = browser[importee];
-				}
-				if (browser[importee] === false) {
+				if (browser[importee] === false || browser[resolvedImportee] === false) {
 					return ES6_BROWSER_EMPTY;
+				}
+				if (browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json']) {
+					importee = browser[importee] || browser[resolvedImportee] || browser[resolvedImportee + '.js'] || browser[resolvedImportee + '.json'];
 				}
 			}
 
@@ -66,19 +68,28 @@ export default function nodeResolve ( options = {} ) {
 					importee,
 					Object.assign({
 						basedir: dirname( importer ),
-						packageFilter ( pkg ) {
+						packageFilter ( pkg, pkgPath ) {
+							const pkgRoot = dirname( pkgPath );
 							if (options.browser && typeof pkg[ 'browser' ] === 'object') {
 								packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-									browser[ key ] = pkg[ 'browser' ][key];
-									if (key[0] === '.' && !extname(key)) browser[ key + '.js'] = browser[ key + '.json' ] = browser[ key ];
+									const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
+									browser[ key ] = resolved;
+									if ( key[0] === '.' ) {
+										const absoluteKey = resolve( pkgRoot, key );
+										browser[ absoluteKey ] = resolved;
+										if ( !extname(key) ) {
+											exts.reduce( ( browser, ext ) => {
+												browser[ absoluteKey + ext ] = browser[ key ];
+												return browser;
+											}, browser );
+										}
+									}
 									return browser;
 								}, {});
 							}
 
 							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 								pkg[ 'main' ] = pkg[ 'browser' ];
-							} else if (options.browser && typeof pkg[ 'browser' ] === 'object' && pkg[ 'browser' ][ pkg[ 'main' ] ]) {
-								pkg[ 'main' ] = pkg[ 'browser' ][ pkg[ 'main' ] ];
 							} else if ( useModule && pkg[ 'module' ] ) {
 								pkg[ 'main' ] = pkg[ 'module' ];
 							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
@@ -91,7 +102,12 @@ export default function nodeResolve ( options = {} ) {
 						extensions: options.extensions
 					}, customResolveOptions ),
 					( err, resolved ) => {
-						if (options.browser && packageBrowserField) browserMapCache[resolved] = packageBrowserField;
+						if (options.browser && packageBrowserField) {
+							if (packageBrowserField[ resolved ]) {
+								resolved = packageBrowserField[ resolved ];
+							}
+							browserMapCache[resolved] = packageBrowserField;
+						}
 
 						if ( !disregardResult && !err ) {
 							if ( resolved && fs.existsSync( resolved ) ) {
