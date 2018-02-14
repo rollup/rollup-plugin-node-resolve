@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 3.0.3
+
+* Fix [#130](https://github.com/rollup/rollup-plugin-node-resolve/issues/130) and [#131](https://github.com/rollup/rollup-plugin-node-resolve/issues/131)
+
 ## 3.0.2
 
 * Ensure `pkg.browser` is an object if necessary ([#129](https://github.com/rollup/rollup-plugin-node-resolve/pull/129))
