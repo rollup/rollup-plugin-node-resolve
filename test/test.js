@@ -14,9 +14,9 @@ function executeBundle ( bundle ) {
 	}).then( generated => {
 		const fn = new Function ( 'module', 'exports', 'assert', generated.code );
 		const module = { exports: {} };
-	
+
 		fn( module, module.exports, assert );
-	
+
 		return module;
 	});
 }
