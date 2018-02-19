@@ -2,7 +2,8 @@
 
 ## 3.0.4 (unreleased)
 
-* Update lockfile [#137](https://github.com/rollup/rollup-plugin-node-resolve/issues/137) and [#131](https://github.com/rollup/rollup-plugin-node-resolve/issues/131)
+* Update lockfile [#137](https://github.com/rollup/rollup-plugin-node-resolve/issues/137) and [#131](https://github.com/rollup/rollup-plugin-node-resolve/issues/137)
+* Update rollup dependency [#138](https://github.com/rollup/rollup-plugin-node-resolve/issues/137) and [#131](https://github.com/rollup/rollup-plugin-node-resolve/issues/138)
 
 ## 3.0.3
 

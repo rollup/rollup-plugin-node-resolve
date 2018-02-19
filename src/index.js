@@ -49,7 +49,7 @@ export default function nodeResolve ( options = {} ) {
 			}
 
 
-			const parts = importee.split( /[\/\\]/ );
+			const parts = importee.split( /[/\\]/ );
 			let id = parts.shift();
 
 			if ( id[0] === '@' && parts.length ) {
