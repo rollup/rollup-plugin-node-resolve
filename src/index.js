@@ -28,8 +28,14 @@ export default function nodeResolve ( options = {} ) {
 		throw new Error( `At least one of options.module, options.main or options.jsnext must be true` );
 	}
 
+	let preserveSymlinks;
+
 	return {
 		name: 'node-resolve',
+
+		options ( options ) {
+			preserveSymlinks = options.preserveSymlinks;
+		},
 
 		resolveId ( importee, importer ) {
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
@@ -64,43 +70,49 @@ export default function nodeResolve ( options = {} ) {
 				let disregardResult = false;
 				let packageBrowserField = false;
 
+				const resolveOptions = {
+					basedir: dirname( importer ),
+					packageFilter ( pkg, pkgPath ) {
+						const pkgRoot = dirname( pkgPath );
+						if (options.browser && typeof pkg[ 'browser' ] === 'object') {
+							packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
+								const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
+								browser[ key ] = resolved;
+								if ( key[0] === '.' ) {
+									const absoluteKey = resolve( pkgRoot, key );
+									browser[ absoluteKey ] = resolved;
+									if ( !extname(key) ) {
+										exts.reduce( ( browser, ext ) => {
+											browser[ absoluteKey + ext ] = browser[ key ];
+											return browser;
+										}, browser );
+									}
+								}
+								return browser;
+							}, {});
+						}
+	
+						if (options.browser && typeof pkg[ 'browser' ] === 'string') {
+							pkg[ 'main' ] = pkg[ 'browser' ];
+						} else if ( useModule && pkg[ 'module' ] ) {
+							pkg[ 'main' ] = pkg[ 'module' ];
+						} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
+							pkg[ 'main' ] = pkg[ 'jsnext:main' ];
+						} else if ( ( useJsnext || useModule ) && !useMain ) {
+							disregardResult = true;
+						}
+						return pkg;
+					},
+					extensions: options.extensions
+				};
+
+				if (preserveSymlinks !== undefined) {
+					resolveOptions.preserveSymlinks = preserveSymlinks;
+				}
+
 				resolveId(
 					importee,
-					Object.assign({
-						basedir: dirname( importer ),
-						packageFilter ( pkg, pkgPath ) {
-							const pkgRoot = dirname( pkgPath );
-							if (options.browser && typeof pkg[ 'browser' ] === 'object') {
-								packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-									const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
-									browser[ key ] = resolved;
-									if ( key[0] === '.' ) {
-										const absoluteKey = resolve( pkgRoot, key );
-										browser[ absoluteKey ] = resolved;
-										if ( !extname(key) ) {
-											exts.reduce( ( browser, ext ) => {
-												browser[ absoluteKey + ext ] = browser[ key ];
-												return browser;
-											}, browser );
-										}
-									}
-									return browser;
-								}, {});
-							}
-
-							if (options.browser && typeof pkg[ 'browser' ] === 'string') {
-								pkg[ 'main' ] = pkg[ 'browser' ];
-							} else if ( useModule && pkg[ 'module' ] ) {
-								pkg[ 'main' ] = pkg[ 'module' ];
-							} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
-								pkg[ 'main' ] = pkg[ 'jsnext:main' ];
-							} else if ( ( useJsnext || useModule ) && !useMain ) {
-								disregardResult = true;
-							}
-							return pkg;
-						},
-						extensions: options.extensions
-					}, customResolveOptions ),
+					Object.assign( resolveOptions, customResolveOptions ),
 					( err, resolved ) => {
 						if (options.browser && packageBrowserField) {
 							if (packageBrowserField[ resolved ]) {
@@ -110,7 +122,7 @@ export default function nodeResolve ( options = {} ) {
 						}
 
 						if ( !disregardResult && !err ) {
-							if ( resolved && fs.existsSync( resolved ) ) {
+							if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
 								resolved = fs.realpathSync( resolved );
 							}
 

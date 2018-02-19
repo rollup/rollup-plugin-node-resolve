@@ -436,24 +436,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
-	it( 'resolves symlinked packages', () => {
-		createMissingDirectories();
-		linkDirectories();
-
-		return rollup.rollup({
-			input: 'samples/symlinked/first/index.js',
-			plugins: [
-				nodeResolve()
-			]
-		}).then( executeBundle ).then( module => {
-			assert.equal( module.exports.number1, module.exports.number2 );
-		}).then(() => {
-			unlinkDirectories();
-		}).catch(err => {
-			unlinkDirectories();
-			throw err;
-		});
-
+	describe( 'symlinks', () => {
 		function createMissingDirectories () {
 			createDirectory( './samples/symlinked/first/node_modules' );
 			createDirectory( './samples/symlinked/second/node_modules' );
@@ -477,6 +460,38 @@ describe( 'rollup-plugin-node-resolve', function () {
 			fs.unlinkSync('./samples/symlinked/first/node_modules/third');
 			fs.unlinkSync('./samples/symlinked/second/node_modules/third');
 		}
+
+		beforeEach( () => {
+			createMissingDirectories();
+			linkDirectories();
+		});
+
+		afterEach( () => {
+			unlinkDirectories();
+		});
+
+		it( 'resolves symlinked packages', () => {
+			return rollup.rollup({
+				input: 'samples/symlinked/first/index.js',
+				plugins: [
+					nodeResolve()
+				]
+			}).then( executeBundle ).then( module => {
+				assert.equal( module.exports.number1, module.exports.number2 );
+			});
+		});
+
+		it( 'preserves symlinks if `preserveSymlinks` is true', () => {
+			return rollup.rollup({
+				input: 'samples/symlinked/first/index.js',
+				plugins: [
+					nodeResolve()
+				],
+				preserveSymlinks: true
+			}).then( executeBundle ).then( module => {
+				assert.notEqual( module.exports.number1, module.exports.number2 );
+			});
+		});
 	});
 
 	it( 'prefers jsnext:main field over main', () => {
