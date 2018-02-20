@@ -21,8 +21,9 @@
     "pretest": "npm run build",
     "test": "mocha",
     "posttest": "eslint src test/*.js",
-    "prepublish": "npm test",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "prepublishOnly": "npm test",
+    "prepare": "npm run build"
   },
   "files": [
     "src",
