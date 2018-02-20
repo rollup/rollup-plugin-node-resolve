@@ -1,11 +1,11 @@
 import buble from 'rollup-plugin-buble';
 
 export default {
-	entry: 'src/index.js',
+	input: 'src/index.js',
 	plugins: [ buble() ],
 	external: [ 'path', 'fs', 'builtin-modules', 'resolve', 'browser-resolve', 'is-module' ],
-	targets: [
-		{ dest: 'dist/rollup-plugin-node-resolve.cjs.js', format: 'cjs' },
-		{ dest: 'dist/rollup-plugin-node-resolve.es.js', format: 'es' }
+	output: [
+		{ file: 'dist/rollup-plugin-node-resolve.cjs.js', format: 'cjs' },
+		{ file: 'dist/rollup-plugin-node-resolve.es.js', format: 'es' }
 	]
 };
