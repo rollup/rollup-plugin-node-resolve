@@ -8,6 +8,34 @@ const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
 const exts = [ '.js', '.json', '.node' ];
 
+let readFileCache = {};
+const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
+const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
+function cachedReadFile (file, cb) {
+	if (file in readFileCache === false) {
+		readFileCache[file] = readFileAsync(file).catch(err => {
+			delete readFileCache[file];
+			throw err;
+		});
+	}
+	readFileCache[file].then(contents => cb(null, contents), cb);
+}
+
+let isFileCache = {};
+function cachedIsFile (file, cb) {
+	if (file in isFileCache === false) {
+		isFileCache[file] = statAsync(file)
+			.then(
+				stat => stat.isFile(),
+				err => {
+					if (err.code == 'ENOENT') return false;
+					delete isFileCache[file];
+					throw err;
+				});
+	}
+	isFileCache[file].then(contents => cb(null, contents), cb);
+}
+
 export default function nodeResolve ( options = {} ) {
 	const useModule = options.module !== false;
 	const useMain = options.main !== false;
@@ -35,6 +63,11 @@ export default function nodeResolve ( options = {} ) {
 
 		options ( options ) {
 			preserveSymlinks = options.preserveSymlinks;
+		},
+
+		onwrite () {
+			isFileCache = {};
+			readFileCache = {};
 		},
 
 		resolveId ( importee, importer ) {
@@ -91,7 +124,7 @@ export default function nodeResolve ( options = {} ) {
 								return browser;
 							}, {});
 						}
-	
+
 						if (options.browser && typeof pkg[ 'browser' ] === 'string') {
 							pkg[ 'main' ] = pkg[ 'browser' ];
 						} else if ( useModule && pkg[ 'module' ] ) {
@@ -103,6 +136,8 @@ export default function nodeResolve ( options = {} ) {
 						}
 						return pkg;
 					},
+					readFile: cachedReadFile,
+					isFile: cachedIsFile,
 					extensions: options.extensions
 				};
 
