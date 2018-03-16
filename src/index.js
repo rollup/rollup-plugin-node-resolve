@@ -44,7 +44,12 @@ export default function nodeResolve ( options = {} ) {
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
 	const jail = options.jail;
-	const only = options.only;
+	const only = Array.isArray(options.only)
+		? options.only.map(o => o instanceof RegExp
+			? o
+			: new RegExp('^' + String(o).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') + '$')
+		)
+		: null;
 	const browserMapCache = {};
 
 	const onwarn = options.onwarn || CONSOLE_WARN;
@@ -100,7 +105,7 @@ export default function nodeResolve ( options = {} ) {
 				id = resolve( importer, '..', importee );
 			}
 
-			if (only && !only.some(pattern => id.match(pattern))) return null;
+			if (only && !only.some(pattern => pattern.test(id))) return null;
 
 			return new Promise( ( fulfil, reject ) => {
 				let disregardResult = false;
