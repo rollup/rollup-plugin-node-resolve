@@ -552,6 +552,32 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it( '"only" option allows to specify the only packages to resolve', () => {
+		return rollup.rollup({
+			input: 'samples/only/main.js',
+			plugins: [
+				nodeResolve({
+					only: [ 'test' ]
+				})
+			]
+		}).then(bundle => {
+			assert.deepEqual( bundle.imports.sort(), [ '@scoped/bar', '@scoped/foo' ] );
+		});
+	});
+
+	it( '"only" option works with a regex', () => {
+		return rollup.rollup({
+			input: 'samples/only/main.js',
+			plugins: [
+				nodeResolve({
+					only: [ /^@scoped\/.*$/ ]
+				})
+			]
+		}).then(bundle => {
+			assert.deepEqual( bundle.imports.sort(), [ 'test' ] );
+		});
+	});
+
 	it( 'allows custom options', () => {
 		return rollup.rollup({
 			input: 'samples/custom-resolve-options/main.js',
