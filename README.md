@@ -44,7 +44,7 @@ export default {
       browser: true,  // Default: false
 
       // not all files you want to resolve are .js files
-      extensions: [ '.js', '.json' ],  // Default: ['.js']
+      extensions: [ '.mjs', '.js', '.jsx', '.json' ],  // Default: [ '.mjs', '.js', '.json', '.node' ]
 
       // whether to prefer built-in modules (e.g. `fs`, `path`) or
       // local ones with the same names
@@ -53,7 +53,7 @@ export default {
       // Lock the module search in this path (like a chroot). Module defined
       // outside this path will be marked as external
       jail: '/my/jail/path', // Default: '/'
-      
+
       // Set to an array of strings and/or regexps to lock the module search
       // to modules that match at least one entry. Modules not matching any
       // entry will be marked as external

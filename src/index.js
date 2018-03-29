@@ -6,7 +6,9 @@ import fs from 'fs';
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-line no-console
-const exts = [ '.js', '.json', '.node' ];
+// It is important that .mjs occur before .js so that Rollup will interpret npm modules
+// which deploy both ESM .mjs and CommonJS .js files as ESM.
+const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
 
 let readFileCache = {};
 const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
@@ -110,6 +112,7 @@ export default function nodeResolve ( options = {} ) {
 			return new Promise( ( fulfil, reject ) => {
 				let disregardResult = false;
 				let packageBrowserField = false;
+				const extensions = options.extensions || DEFAULT_EXTS;
 
 				const resolveOptions = {
 					basedir: dirname( importer ),
@@ -123,7 +126,7 @@ export default function nodeResolve ( options = {} ) {
 									const absoluteKey = resolve( pkgRoot, key );
 									browser[ absoluteKey ] = resolved;
 									if ( !extname(key) ) {
-										exts.reduce( ( browser, ext ) => {
+										extensions.reduce( ( browser, ext ) => {
 											browser[ absoluteKey + ext ] = browser[ key ];
 											return browser;
 										}, browser );
@@ -146,7 +149,7 @@ export default function nodeResolve ( options = {} ) {
 					},
 					readFile: cachedReadFile,
 					isFile: cachedIsFile,
-					extensions: options.extensions
+					extensions: extensions
 				};
 
 				if (preserveSymlinks !== undefined) {
