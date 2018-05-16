@@ -436,6 +436,28 @@ describe( 'rollup-plugin-node-resolve', function () {
 		});
 	});
 
+	it('finds and uses an .mjs module', function () {
+		return rollup.rollup({
+			input: 'samples/module-mjs/main.js',
+			plugins: [
+				nodeResolve({ preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'MODULE-MJS' );
+		});
+	});
+
+	it('finds and uses a dual-distributed .js & .mjs module', function () {
+		return rollup.rollup({
+			input: 'samples/dual-cjs-mjs/main.js',
+			plugins: [
+				nodeResolve({ preferBuiltins: false })
+			]
+		}).then( executeBundle ).then( module => {
+			assert.equal( module.exports, 'DUAL-MJS' );
+		});
+	});
+
 	describe( 'symlinks', () => {
 		function createMissingDirectories () {
 			createDirectory( './samples/symlinked/first/node_modules' );
