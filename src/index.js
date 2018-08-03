@@ -38,6 +38,8 @@ function cachedIsFile (file, cb) {
 	isFileCache[file].then(contents => cb(null, contents), cb);
 }
 
+const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
+
 export default function nodeResolve ( options = {} ) {
 	const useModule = options.module !== false;
 	const useMain = options.main !== false;
@@ -109,100 +111,92 @@ export default function nodeResolve ( options = {} ) {
 
 			if (only && !only.some(pattern => pattern.test(id))) return null;
 
-			return new Promise( ( fulfil, reject ) => {
-				let disregardResult = false;
-				let packageBrowserField = false;
-				const extensions = options.extensions || DEFAULT_EXTS;
+			let disregardResult = false;
+			let packageBrowserField = false;
+			const extensions = options.extensions || DEFAULT_EXTS;
 
-				const resolveOptions = {
-					basedir: dirname( importer ),
-					packageFilter ( pkg, pkgPath ) {
-						const pkgRoot = dirname( pkgPath );
-						if (options.browser && typeof pkg[ 'browser' ] === 'object') {
-							packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-								const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
-								browser[ key ] = resolved;
-								if ( key[0] === '.' ) {
-									const absoluteKey = resolve( pkgRoot, key );
-									browser[ absoluteKey ] = resolved;
-									if ( !extname(key) ) {
-										extensions.reduce( ( browser, ext ) => {
-											browser[ absoluteKey + ext ] = browser[ key ];
-											return browser;
-										}, browser );
-									}
+			const resolveOptions = {
+				basedir: dirname( importer ),
+				packageFilter ( pkg, pkgPath ) {
+					const pkgRoot = dirname( pkgPath );
+					if (options.browser && typeof pkg[ 'browser' ] === 'object') {
+						packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
+							const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
+							browser[ key ] = resolved;
+							if ( key[0] === '.' ) {
+								const absoluteKey = resolve( pkgRoot, key );
+								browser[ absoluteKey ] = resolved;
+								if ( !extname(key) ) {
+									extensions.reduce( ( browser, ext ) => {
+										browser[ absoluteKey + ext ] = browser[ key ];
+										return browser;
+									}, browser );
 								}
-								return browser;
-							}, {});
-						}
-
-						if (options.browser && typeof pkg[ 'browser' ] === 'string') {
-							pkg[ 'main' ] = pkg[ 'browser' ];
-						} else if ( useModule && pkg[ 'module' ] ) {
-							pkg[ 'main' ] = pkg[ 'module' ];
-						} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
-							pkg[ 'main' ] = pkg[ 'jsnext:main' ];
-						} else if ( ( useJsnext || useModule ) && !useMain ) {
-							disregardResult = true;
-						}
-						return pkg;
-					},
-					readFile: cachedReadFile,
-					isFile: cachedIsFile,
-					extensions: extensions
-				};
-
-				if (preserveSymlinks !== undefined) {
-					resolveOptions.preserveSymlinks = preserveSymlinks;
-				}
-
-				resolveId(
-					importee,
-					Object.assign( resolveOptions, customResolveOptions ),
-					( err, resolved ) => {
-						if (options.browser && packageBrowserField) {
-							if (packageBrowserField[ resolved ]) {
-								resolved = packageBrowserField[ resolved ];
 							}
-							browserMapCache[resolved] = packageBrowserField;
+							return browser;
+						}, {});
+					}
+
+					if (options.browser && typeof pkg[ 'browser' ] === 'string') {
+						pkg[ 'main' ] = pkg[ 'browser' ];
+					} else if ( useModule && pkg[ 'module' ] ) {
+						pkg[ 'main' ] = pkg[ 'module' ];
+					} else if ( useJsnext && pkg[ 'jsnext:main' ] ) {
+						pkg[ 'main' ] = pkg[ 'jsnext:main' ];
+					} else if ( ( useJsnext || useModule ) && !useMain ) {
+						disregardResult = true;
+					}
+					return pkg;
+				},
+				readFile: cachedReadFile,
+				isFile: cachedIsFile,
+				extensions: extensions
+			};
+
+			if (preserveSymlinks !== undefined) {
+				resolveOptions.preserveSymlinks = preserveSymlinks;
+			}
+
+			return resolveIdAsync(
+				importee,
+				Object.assign( resolveOptions, customResolveOptions )
+			)
+				.catch(() => false)
+				.then(resolved => {
+					if (options.browser && packageBrowserField) {
+						if (packageBrowserField[ resolved ]) {
+							resolved = packageBrowserField[ resolved ];
+						}
+						browserMapCache[resolved] = packageBrowserField;
+					}
+
+					if ( !disregardResult && resolved !== false ) {
+						if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
+							resolved = fs.realpathSync( resolved );
 						}
 
-						if ( !disregardResult && !err ) {
-							if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
-								resolved = fs.realpathSync( resolved );
+						if ( ~builtins.indexOf( resolved ) ) {
+							return null;
+						} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
+							if ( !isPreferBuiltinsSet ) {
+								onwarn(
+									`preferring built-in module '${importee}' over local alternative ` +
+									`at '${resolved}', pass 'preferBuiltins: false' to disable this ` +
+									`behavior or 'preferBuiltins: true' to disable this warning`
+								);
 							}
-
-							if ( ~builtins.indexOf( resolved ) ) {
-								fulfil( null );
-							} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
-								if ( !isPreferBuiltinsSet ) {
-									onwarn(
-										`preferring built-in module '${importee}' over local alternative ` +
-										`at '${resolved}', pass 'preferBuiltins: false' to disable this ` +
-										`behavior or 'preferBuiltins: true' to disable this warning`
-									);
-								}
-								fulfil( null );
-							} else if ( jail && resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
-								fulfil( null );
-							}
-						}
-
-						if ( resolved && options.modulesOnly ) {
-							fs.readFile( resolved, 'utf-8', ( err, code ) => {
-								if ( err ) {
-									reject( err );
-								} else {
-									const valid = isModule( code );
-									fulfil( valid ? resolved : null );
-								}
-							});
-						} else {
-							fulfil( resolved );
+							return null;
+						} else if ( jail && resolved.indexOf( normalize( jail.trim( sep ) ) ) !== 0 ) {
+							return null;
 						}
 					}
-				);
-			});
+
+					if ( resolved && options.modulesOnly ) {
+						return readFileAsync( resolved, 'utf-8').then(code => isModule( code ) ? resolved : null);
+					} else {
+						return resolved === false ? null : resolved;
+					}
+				});
 		}
 	};
 }
