@@ -610,7 +610,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}) ]
 		}).then( bundle => {
 			assert.equal(
-				bundle.modules[0].id,
+				bundle.modules[1].id,
 				path.resolve( __dirname, 'samples/custom-resolve-options/js_modules/foo.js' )
 			);
 		});
@@ -624,6 +624,25 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}) ]
 		}).then( bundle => {
 			assert.deepEqual( bundle.imports, [ 'foo/deep' ] );
+		});
+	});
+
+	it( 'generates manual chunks', () => {
+		const chunkName = 'mychunk';
+		return rollup.rollup({
+			input: 'samples/manualchunks/main.js',
+			experimentalCodeSplitting: true,
+			manualChunks: {
+				[ chunkName ]: [ 'simple' ]
+			},
+			plugins: [ nodeResolve() ]
+		}).then( bundle => {
+			return bundle.generate({
+				format: 'esm',
+				chunkFileNames: '[name]',
+			});
+		}).then( generated => {
+			assert(chunkName in generated.output);
 		});
 	});
 });
