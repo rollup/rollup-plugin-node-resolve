@@ -8,17 +8,31 @@ const fs = require( 'fs' );
 
 process.chdir( __dirname );
 
+const getChunksFromGenerated = generated => {
+	if (generated.output) {
+		return generated.output.length ? generated.output : Object.keys(generated.output)
+			.map(chunkName => generated.output[chunkName]);
+	} else {
+		return [generated];
+	}
+};
+
 function executeBundle ( bundle ) {
 	return bundle.generate({
 		format: 'cjs'
 	}).then( generated => {
-		const fn = new Function ( 'module', 'exports', 'assert', generated.code );
+		const fn = new Function ( 'module', 'exports', 'assert', getChunksFromGenerated(generated)[0].code );
 		const module = { exports: {} };
 
 		fn( module, module.exports, assert );
 
 		return module;
 	});
+}
+
+function getBundleImports ( bundle) {
+	return bundle.imports ? Promise.resolve(bundle.imports) : bundle.generate({format: 'esm'})
+		.then(generated => getChunksFromGenerated(generated)[0].imports);
 }
 
 describe( 'rollup-plugin-node-resolve', function () {
@@ -91,7 +105,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 				format: 'cjs'
 			});
 		}).then( generated => {
-			assert.ok( ~generated.code.indexOf( 'setPrototypeOf' ) );
+			assert.ok( ~getChunksFromGenerated(generated)[0].code.indexOf( 'setPrototypeOf' ) );
 		});
 	});
 
@@ -157,7 +171,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -173,7 +187,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main-implicit.js',
+			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -187,7 +201,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-builtin/main.js',
+			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -201,7 +215,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-nested/main.js',
+			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -217,7 +231,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -233,7 +247,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main-implicit.js',
+			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -247,7 +261,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-builtin/main.js',
+			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -261,7 +275,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-nested/main.js',
+			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -277,7 +291,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-main/main.js',
+			input: 'samples/browser-object-main/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -293,7 +307,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving implicit `main`', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object/main-implicit.js',
+			input: 'samples/browser-object/main-implicit.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -307,7 +321,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving replaced builtins', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-builtin/main.js',
+			input: 'samples/browser-object-builtin/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -321,7 +335,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 
 	it( 'allows use of object browser field, resolving nested directories', function () {
 		return rollup.rollup({
-			entry: 'samples/browser-object-nested/main.js',
+			input: 'samples/browser-object-nested/main.js',
 			plugins: [
 				nodeResolve({
 					main: true,
@@ -355,9 +369,8 @@ describe( 'rollup-plugin-node-resolve', function () {
 					preferBuiltins: true
 				})
 			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'events' ] );
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, ['events']));
 	});
 
 	it( 'preferBuiltins: false allows resolving a local module with the same name as a builtin module', () => {
@@ -368,24 +381,20 @@ describe( 'rollup-plugin-node-resolve', function () {
 					preferBuiltins: false
 				})
 			]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports.sort(), [] );
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, []));
 	});
 
 	it( 'issues a warning when preferring a builtin module without having explicit configuration', () => {
 		let warning = null;
 		return rollup.rollup({
 			input: 'samples/prefer-builtin/main.js',
-			plugins: [
-				nodeResolve({
-					onwarn ( message ) {
-						if ( ~message.indexOf( 'prefer' ) ) {
-							warning = message;
-						}
-					}
-				})
-			]
+			onwarn ({message}) {
+				if ( ~message.indexOf( 'preferring' ) ) {
+					warning = message;
+				}
+			},
+			plugins: [nodeResolve()]
 		}).then( () => {
 			const localPath = path.join(__dirname, 'node_modules/events/index.js');
 			assert.strictEqual(
@@ -539,16 +548,16 @@ describe( 'rollup-plugin-node-resolve', function () {
 	});
 
 	it( 'throws error if local id is not resolved', () => {
-		const entry = path.join( 'samples', 'unresolved-local', 'main.js' );
+		const input = path.join( 'samples', 'unresolved-local', 'main.js' );
 		return rollup.rollup({
-			entry,
+			input,
 			plugins: [
 				nodeResolve()
 			]
 		}).then( () => {
 			throw Error( 'test should fail' );
 		}, err => {
-			assert.equal( err.message, `Could not resolve './foo' from ${entry}` );
+			assert.equal( err.message, `Could not resolve './foo' from ${input}` );
 		});
 	});
 
@@ -558,9 +567,8 @@ describe( 'rollup-plugin-node-resolve', function () {
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/samples/`
 			}) ]
-		}).then( (bundle) => {
-			assert.deepEqual(bundle.imports, [ 'string/uppercase.js' ]);
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, ['string/uppercase.js']));
 	});
 
 	it( 'bundle module defined inside the jail', () => {
@@ -569,9 +577,8 @@ describe( 'rollup-plugin-node-resolve', function () {
 			plugins: [ nodeResolve({
 				jail: `${__dirname}/`
 			}) ]
-		}).then( (bundle) => {
-			assert.deepEqual(bundle.imports, []);
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, []));
 	});
 
 	it( '"only" option allows to specify the only packages to resolve', () => {
@@ -582,9 +589,8 @@ describe( 'rollup-plugin-node-resolve', function () {
 					only: [ 'test' ]
 				})
 			]
-		}).then(bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ '@scoped/bar', '@scoped/foo' ] );
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, ['@scoped/foo', '@scoped/bar']));
 	});
 
 	it( '"only" option works with a regex', () => {
@@ -595,9 +601,8 @@ describe( 'rollup-plugin-node-resolve', function () {
 					only: [ /^@scoped\/.*$/ ]
 				})
 			]
-		}).then(bundle => {
-			assert.deepEqual( bundle.imports.sort(), [ 'test' ] );
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, ['test']));
 	});
 
 	it( 'allows custom options', () => {
@@ -610,7 +615,7 @@ describe( 'rollup-plugin-node-resolve', function () {
 			}) ]
 		}).then( bundle => {
 			assert.equal(
-				bundle.modules[1].id,
+				bundle.cache.modules[1].id,
 				path.resolve( __dirname, 'samples/custom-resolve-options/js_modules/foo.js' )
 			);
 		});
@@ -622,9 +627,8 @@ describe( 'rollup-plugin-node-resolve', function () {
 			plugins: [ nodeResolve({
 				modulesOnly: true
 			}) ]
-		}).then( bundle => {
-			assert.deepEqual( bundle.imports, [ 'foo/deep' ] );
-		});
+		}).then(getBundleImports)
+			.then(imports => assert.deepEqual(imports, ['foo/deep']));
 	});
 
 	it( 'generates manual chunks', () => {
@@ -636,13 +640,21 @@ describe( 'rollup-plugin-node-resolve', function () {
 				[ chunkName ]: [ 'simple' ]
 			},
 			plugins: [ nodeResolve() ]
-		}).then( bundle => {
-			return bundle.generate({
+		}).then( bundle =>
+			bundle.generate({
 				format: 'esm',
 				chunkFileNames: '[name]',
-			});
-		}).then( generated => {
-			assert(chunkName in generated.output);
+			})).then( generated => {
+			assert.ok(getChunksFromGenerated(generated).find(({fileName}) => fileName === chunkName));
 		});
+	});
+
+	it('resolves dynamic imports', () => {
+		return rollup.rollup({
+			input: 'samples/dynamic/main.js',
+			inlineDynamicImports: true,
+			plugins: [ nodeResolve() ]
+		}).then(executeBundle)
+			.then(({exports}) => exports.then(result => assert.equal(result.default, 42)));
 	});
 });
