@@ -1,6 +1,6 @@
 # rollup-plugin-node-resolve changelog
 
-## 4.0.0 (unreleased)
+## 4.0.0 (2018-12-09)
 
 This release will support rollup@1.0
 
