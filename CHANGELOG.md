@@ -5,7 +5,8 @@
 This release will support rollup@1.0
 
 ### Features
-* feat: Resolve modules used to define manual chunks (https://github.com/rollup/rollup-plugin-node-resolve/pull/185, by @mcshaman)
+* Resolve modules used to define manual chunks ([#185](https://github.com/rollup/rollup-plugin-node-resolve/pull/185) by @mcshaman)
+* Update dependencies and plugin hook usage ([#187](https://github.com/rollup/rollup-plugin-node-resolve/pull/187) by @lukastaegert)
 
 ## 3.4.0 (2018-09-04)
 
