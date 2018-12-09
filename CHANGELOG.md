@@ -1,5 +1,12 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.0.0 (unreleased)
+
+This release will support rollup@1.0
+
+### Features
+* feat: Resolve modules used to define manual chunks (https://github.com/rollup/rollup-plugin-node-resolve/pull/185, by @mcshaman)
+
 ## 3.4.0 (2018-09-04)
 
 This release now supports `.mjs` files by default
