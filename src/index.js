@@ -29,7 +29,7 @@ function cachedIsFile (file, cb) {
 			.then(
 				stat => stat.isFile(),
 				err => {
-					if (err.code == 'ENOENT') return false;
+					if (err.code === 'ENOENT') return false;
 					delete isFileCache[file];
 					throw err;
 				});
@@ -94,7 +94,6 @@ export default function nodeResolve ( options = {} ) {
 				}
 			}
 
-
 			const parts = importee.split( /[/\\]/ );
 			let id = parts.shift();
 
@@ -118,7 +117,10 @@ export default function nodeResolve ( options = {} ) {
 					const pkgRoot = dirname( pkgPath );
 					if (options.browser && typeof pkg[ 'browser' ] === 'object') {
 						packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-							const resolved = pkg[ 'browser' ][ key ] === false ? false : resolve( pkgRoot, pkg[ 'browser' ][ key ] );
+							let resolved = pkg[ 'browser' ][ key ];
+							if (resolved && resolved[0] === '.') {
+								resolved = resolve( pkgRoot, pkg[ 'browser' ][ key ] );
+							}
 							browser[ key ] = resolved;
 							if ( key[0] === '.' ) {
 								const absoluteKey = resolve( pkgRoot, key );
