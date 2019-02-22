@@ -2,7 +2,8 @@
 
 ## 4.0.1 (2019-02-22)
 
-Fix `package.browser` mapping issue when `false` is specified ([#183](https://github.com/rollup/rollup-plugin-node-resolve/pull/183) by @allex)
+* Fix issue when external modules are specified in `package.browser` ([#143](https://github.com/rollup/rollup-plugin-node-resolve/pull/143) by @keithamus)
+* Fix `package.browser` mapping issue when `false` is specified ([#183](https://github.com/rollup/rollup-plugin-node-resolve/pull/183) by @allex)
 
 ## 4.0.0 (2018-12-09)
 
