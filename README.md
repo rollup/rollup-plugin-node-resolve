@@ -20,9 +20,9 @@ export default {
   input: 'main.js',
   output: {
     file: 'bundle.js',
-    format: 'iife'
+    format: 'iife',
+    name: 'MyModule'
   },
-  name: 'MyModule',
   plugins: [
     resolve({
       // use "module" field for ES6 module if possible
@@ -35,7 +35,7 @@ export default {
       jsnext: true,  // Default: false
 
       // use "main" field or index.js, even if it's not an ES6 module
-      // (needs to be converted from CommonJS to ES6
+      // (needs to be converted from CommonJS to ES6)
       // – see https://github.com/rollup/rollup-plugin-commonjs
       main: true,  // Default: true
 
