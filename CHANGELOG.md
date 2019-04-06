@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.2.1 (2019-04-06)
+
+* Respect setting the deprecated fields "module", "main", and "jsnext" ([#204](https://github.com/rollup/rollup-plugin-node-resolve/pull/204) by @nick-woodward)
+
 ## 4.2.0 (2019-04-06)
 
 * Add new mainfields option ([#182](https://github.com/rollup/rollup-plugin-node-resolve/pull/182) by @keithamus)
