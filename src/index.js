@@ -1,4 +1,4 @@
-import {dirname, extname, normalize, resolve, sep} from 'path';
+import {dirname, extname, normalize, resolve, sep, join} from 'path';
 import builtins from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
@@ -72,6 +72,7 @@ const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId
 export default function nodeResolve ( options = {} ) {
 	const mainFields = getMainFields(options);
 	const useBrowserOverrides = mainFields.indexOf('browser') !== -1;
+	const dedupe = options.dedupe || [];
 	const isPreferBuiltinsSet = options.preferBuiltins === true || options.preferBuiltins === false;
 	const preferBuiltins = isPreferBuiltinsSet ? options.preferBuiltins : true;
 	const customResolveOptions = options.customResolveOptions || {};
@@ -106,6 +107,10 @@ export default function nodeResolve ( options = {} ) {
 			if ( /\0/.test( importee ) ) return null; // ignore IDs with null character, these belong to other plugins
 
 			const basedir = importer ? dirname( importer ) : process.cwd();
+
+			if (dedupe.indexOf(importee) !== -1) {
+				importee = join(process.cwd(), 'node_modules', importee);
+			}
 
 			// https://github.com/defunctzombie/package-browser-field-spec
 			if (useBrowserOverrides && browserMapCache[importer]) {
