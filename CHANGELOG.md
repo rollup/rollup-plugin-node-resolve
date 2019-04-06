@@ -1,5 +1,10 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.2.0 (2019-04-06)
+
+* Add new mainfields option ([#182](https://github.com/rollup/rollup-plugin-node-resolve/pull/182) by @keithamus)
+* Added dedupe option to prevent bundling the same package multiple times ([#201](https://github.com/rollup/rollup-plugin-node-resolve/pull/182) by @sormy)
+
 ## 4.1.0 (2019-04-05)
 
 * Add TypeScript typings ([#189](https://github.com/rollup/rollup-plugin-node-resolve/pull/189) by @NotWoods)
