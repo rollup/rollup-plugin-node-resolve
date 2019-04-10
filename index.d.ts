@@ -8,7 +8,7 @@ export interface Options {
 	 * will be used
 	 * @default ['module', 'main']
 	 */
-	mainFields?: string[];
+	mainFields?: ReadonlyArray<string>;
 
 	/**
 	 * @deprecated use "mainFields" instead

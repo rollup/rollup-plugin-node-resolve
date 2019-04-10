@@ -11,6 +11,7 @@ const config = {
 	},
 	plugins: [
 		resolve({
+			mainFields: ['untranspiled', 'module', 'main'],
 			module: true,
 			jsnext: true,
 			main: true,
@@ -19,6 +20,7 @@ const config = {
 			preferBuiltins: false,
 			jail: '/my/jail/path',
 			only: [ 'some_module', /^@some_scope\/.*$/ ],
+			dedupe: ['lodash'],
 			modulesOnly: true,
 			customResolveOptions: {
 				moduleDirectory: 'js_modules'
