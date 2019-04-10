@@ -1,5 +1,10 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.2.2 (2019-04-10)
+
+* Fix TypeScript typings (rename and export Options interface) ([#206](https://github.com/rollup/rollup-plugin-node-resolve/pull/206) by @Kocal)
+* Fix mainfields typing ([#207](https://github.com/rollup/rollup-plugin-node-resolve/pull/207) by @nicolashenry)
+
 ## 4.2.1 (2019-04-06)
 
 * Respect setting the deprecated fields "module", "main", and "jsnext" ([#204](https://github.com/rollup/rollup-plugin-node-resolve/pull/204) by @nick-woodward)
