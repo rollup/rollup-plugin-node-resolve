@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.2.3 (2019-04-11)
+
+* Fix ordering of jsnext:main when using the jsnext option ([#209](https://github.com/rollup/rollup-plugin-node-resolve/pull/209) by @lukastaegert)
+
 ## 4.2.2 (2019-04-10)
 
 * Fix TypeScript typings (rename and export Options interface) ([#206](https://github.com/rollup/rollup-plugin-node-resolve/pull/206) by @Kocal)
