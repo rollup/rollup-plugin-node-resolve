@@ -1,5 +1,10 @@
 # rollup-plugin-node-resolve changelog
 
+## 4.2.4 (unreleased)
+
+* Add note on builtins to Readme ([#215](https://github.com/rollup/rollup-plugin-node-resolve/pull/215) by @keithamus)
+* Add issue templates ([#217](https://github.com/rollup/rollup-plugin-node-resolve/pull/217) by @mecurc)
+
 ## 4.2.3 (2019-04-11)
 
 * Fix ordering of jsnext:main when using the jsnext option ([#209](https://github.com/rollup/rollup-plugin-node-resolve/pull/209) by @lukastaegert)
