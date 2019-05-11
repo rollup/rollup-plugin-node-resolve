@@ -1,9 +1,10 @@
 # rollup-plugin-node-resolve changelog
 
-## 4.2.4 (unreleased)
+## 4.2.4 (2019-05-11)
 
 * Add note on builtins to Readme ([#215](https://github.com/rollup/rollup-plugin-node-resolve/pull/215) by @keithamus)
 * Add issue templates ([#217](https://github.com/rollup/rollup-plugin-node-resolve/pull/217) by @mecurc)
+* Improve performance by caching `isDir` ([#218](https://github.com/rollup/rollup-plugin-node-resolve/pull/218) by @keithamus)
 
 ## 4.2.3 (2019-04-11)
 
