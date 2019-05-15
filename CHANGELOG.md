@@ -1,8 +1,14 @@
 # rollup-plugin-node-resolve changelog
 
-## 4.2.5 (unreleased)
+## 5.0.0 (2019-05-15)
 
 * Replace bublé with babel, update dependencies ([#216](https://github.com/rollup/rollup-plugin-node-resolve/pull/216) by @mecurc)
+* Handle module side-effects ([#219](https://github.com/rollup/rollup-plugin-node-resolve/pull/219) by @lukastaegert)
+
+### Breaking Changes
+
+* Requires at least rollup@1.11.0 to work (v1.12.0 for module side-effects to be respected)
+* If used with rollup-plugin-commonjs, it should be at least v10.0.0
 
 ## 4.2.4 (2019-05-11)
 
