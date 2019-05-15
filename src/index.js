@@ -1,8 +1,12 @@
 import {dirname, extname, join, normalize, resolve, sep} from 'path';
-import builtins from 'builtin-modules';
+import builtinList from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
 import fs from 'fs';
+import {createFilter} from 'rollup-pluginutils';
+import {peerDependencies} from '../package.json';
+
+const builtins = builtinList.reduce((set, id) => set.add(id), new Set());
 
 const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 // It is important that .mjs occur before .js so that Rollup will interpret npm modules
@@ -10,7 +14,9 @@ const ES6_BROWSER_EMPTY = resolve( __dirname, '../src/empty.js' );
 const DEFAULT_EXTS = [ '.mjs', '.js', '.json', '.node' ];
 
 const readFileAsync = file => new Promise((fulfil, reject) => fs.readFile(file, (err, contents) => err ? reject(err) : fulfil(contents)));
+
 const statAsync = file => new Promise((fulfil, reject) => fs.stat(file, (err, contents) => err ? reject(err) : fulfil(contents)));
+
 const cache = fn => {
 	const cache = new Map();
 	const wrapped = (param, done) => {
@@ -25,12 +31,16 @@ const cache = fn => {
 	wrapped.clear = () => cache.clear();
 	return wrapped;
 };
+
 const ignoreENOENT = err => {
 	if (err.code === 'ENOENT') return false;
 	throw err;
 };
+
 const readFileCached = cache(readFileAsync);
+
 const isDirCached = cache(file => statAsync(file).then(stat => stat.isDirectory(), ignoreENOENT));
+
 const isFileCached = cache(file => statAsync(file).then(stat => stat.isFile(), ignoreENOENT));
 
 function getMainFields (options) {
@@ -63,6 +73,8 @@ function getMainFields (options) {
 	return mainFields;
 }
 
+const alwaysNull = () => null;
+
 const resolveIdAsync = (file, opts) => new Promise((fulfil, reject) => resolveId(file, opts, (err, contents) => err ? reject(err) : fulfil(contents)));
 
 export default function nodeResolve ( options = {} ) {
@@ -85,6 +97,62 @@ export default function nodeResolve ( options = {} ) {
 		throw new Error( 'options.skip is no longer supported — you should use the main Rollup `external` option instead' );
 	}
 
+	const extensions = options.extensions || DEFAULT_EXTS;
+	const packageInfoCache = new Map();
+
+	function getCachedPackageInfo (pkg, pkgPath) {
+		if (packageInfoCache.has(pkgPath)) {
+			return packageInfoCache.get(pkgPath);
+		}
+		const pkgRoot = dirname( pkgPath );
+
+		let overriddenMain = false;
+		for ( let i = 0; i < mainFields.length; i++ ) {
+			const field = mainFields[i];
+			if ( typeof pkg[ field ] === 'string' ) {
+				pkg[ 'main' ] = pkg[ field ];
+				overriddenMain = true;
+				break;
+			}
+		}
+
+		const packageInfo = {
+			cachedPkg: pkg,
+			hasModuleSideEffects: alwaysNull,
+			hasPackageEntry: overriddenMain !== false || mainFields.indexOf( 'main' ) !== -1,
+			packageBrowserField: useBrowserOverrides && typeof pkg[ 'browser' ] === 'object' &&
+				Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
+					let resolved = pkg[ 'browser' ][ key ];
+					if (resolved && resolved[0] === '.') {
+						resolved = resolve( pkgRoot, resolved );
+					}
+					browser[ key ] = resolved;
+					if ( key[0] === '.' ) {
+						const absoluteKey = resolve( pkgRoot, key );
+						browser[ absoluteKey ] = resolved;
+						if ( !extname(key) ) {
+							extensions.reduce( ( browser, ext ) => {
+								browser[ absoluteKey + ext ] = browser[ key ];
+								return browser;
+							}, browser );
+						}
+					}
+					return browser;
+				}, {})
+		};
+
+		const packageSideEffects = pkg['sideEffects'];
+		if (typeof packageSideEffects === 'boolean') {
+			packageInfo.hasModuleSideEffects = () => packageSideEffects;
+		} else if (Array.isArray(packageSideEffects)) {
+			const filter = createFilter(packageSideEffects, null, {resolve: pkgRoot});
+			packageInfo.hasModuleSideEffects = id => !filter(id);
+		}
+
+		packageInfoCache.set(pkgPath, packageInfo);
+		return packageInfo;
+	}
+
 	let preserveSymlinks;
 
 	return {
@@ -92,6 +160,16 @@ export default function nodeResolve ( options = {} ) {
 
 		options ( options ) {
 			preserveSymlinks = options.preserveSymlinks;
+			const [major, minor] = this.meta.rollupVersion.split('.').map(Number);
+			const minVersion = peerDependencies.rollup.slice(2);
+			const [minMajor, minMinor] = minVersion.split('.').map(Number);
+			if (major < minMajor || (major === minMajor && minor < minMinor)) {
+				this.error(
+					`Insufficient Rollup version: "rollup-plugin-node-resolve" requires at least rollup@${minVersion} but found rollup@${
+						this.meta.rollupVersion
+					}.`
+				);
+			}
 		},
 
 		generateBundle () {
@@ -134,48 +212,17 @@ export default function nodeResolve ( options = {} ) {
 
 			if (only && !only.some(pattern => pattern.test(id))) return null;
 
-			let disregardResult = false;
+			let hasModuleSideEffects = alwaysNull;
+			let hasPackageEntry = true;
 			let packageBrowserField = false;
-			const extensions = options.extensions || DEFAULT_EXTS;
 
 			const resolveOptions = {
 				basedir,
 				packageFilter ( pkg, pkgPath ) {
-					const pkgRoot = dirname( pkgPath );
-					if (useBrowserOverrides && typeof pkg[ 'browser' ] === 'object') {
-						packageBrowserField = Object.keys(pkg[ 'browser' ]).reduce((browser, key) => {
-							let resolved = pkg[ 'browser' ][ key ];
-							if (resolved && resolved[0] === '.') {
-								resolved = resolve( pkgRoot, pkg[ 'browser' ][ key ] );
-							}
-							browser[ key ] = resolved;
-							if ( key[0] === '.' ) {
-								const absoluteKey = resolve( pkgRoot, key );
-								browser[ absoluteKey ] = resolved;
-								if ( !extname(key) ) {
-									extensions.reduce( ( browser, ext ) => {
-										browser[ absoluteKey + ext ] = browser[ key ];
-										return browser;
-									}, browser );
-								}
-							}
-							return browser;
-						}, {});
-					}
-
-					let overriddenMain = false;
-					for ( let i = 0; i < mainFields.length; i++ ) {
-						const field = mainFields[i];
-						if ( typeof pkg[ field ] === 'string' ) {
-							pkg[ 'main' ] = pkg[ field ];
-							overriddenMain = true;
-							break;
-						}
-					}
-					if ( overriddenMain === false && mainFields.indexOf( 'main' ) === -1 ) {
-						disregardResult = true;
-					}
-					return pkg;
+					let cachedPkg;
+					({cachedPkg, hasModuleSideEffects, hasPackageEntry, packageBrowserField} =
+						getCachedPackageInfo(pkg, pkgPath));
+					return cachedPkg;
 				},
 				readFile: readFileCached,
 				isFile: isFileCached,
@@ -192,7 +239,7 @@ export default function nodeResolve ( options = {} ) {
 				Object.assign( resolveOptions, customResolveOptions )
 			)
 				.then(resolved => {
-					if ( resolved && useBrowserOverrides && packageBrowserField ) {
+					if ( resolved && packageBrowserField ) {
 						if ( packageBrowserField.hasOwnProperty(resolved) ) {
 							if (!packageBrowserField[resolved]) {
 								browserMapCache[resolved] = packageBrowserField;
@@ -203,14 +250,14 @@ export default function nodeResolve ( options = {} ) {
 						browserMapCache[resolved] = packageBrowserField;
 					}
 
-					if ( !disregardResult ) {
+					if ( hasPackageEntry ) {
 						if ( !preserveSymlinks && resolved && fs.existsSync( resolved ) ) {
 							resolved = fs.realpathSync( resolved );
 						}
 
-						if ( ~builtins.indexOf( resolved ) ) {
+						if ( builtins.has( resolved ) ) {
 							return null;
-						} else if ( ~builtins.indexOf( importee ) && preferBuiltins ) {
+						} else if ( builtins.has( importee ) && preferBuiltins ) {
 							if ( !isPreferBuiltinsSet ) {
 								this.warn(
 									`preferring built-in module '${importee}' over local alternative ` +
@@ -225,9 +272,10 @@ export default function nodeResolve ( options = {} ) {
 					}
 
 					if ( resolved && options.modulesOnly ) {
-						return readFileAsync( resolved, 'utf-8').then(code => isModule( code ) ? resolved : null);
+						return readFileAsync( resolved, 'utf-8')
+							.then(code => isModule( code ) ? {id: resolved, moduleSideEffects: hasModuleSideEffects(resolved)} : null);
 					} else {
-						return resolved;
+						return {id: resolved, moduleSideEffects: hasModuleSideEffects(resolved)};
 					}
 				})
 				.catch(() => null);
