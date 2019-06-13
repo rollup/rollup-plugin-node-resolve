@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.0.2 (2019-06-13)
+
+* Support resolve 1.11.1, add built-in test ([#223](https://github.com/rollup/rollup-plugin-node-resolve/pull/223) by @bterlson)
+
 ## 5.0.1 (2019-05-31)
 
 * Update to resolve@1.11.0 for better performance ([#220](https://github.com/rollup/rollup-plugin-node-resolve/pull/220) by @keithamus)
