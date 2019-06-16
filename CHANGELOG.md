@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.0.3 (2019-06-16)
+
+* Make empty.js a virtual module ([#224](https://github.com/rollup/rollup-plugin-node-resolve/pull/224) by @manucorporat)
+
 ## 5.0.2 (2019-06-13)
 
 * Support resolve 1.11.1, add built-in test ([#223](https://github.com/rollup/rollup-plugin-node-resolve/pull/223) by @bterlson)
