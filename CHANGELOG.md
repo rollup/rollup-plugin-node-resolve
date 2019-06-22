@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.0.4 (2019-06-22)
+
+* Treat sideEffects array as inclusion list ([#227](https://github.com/rollup/rollup-plugin-node-resolve/pull/227) by @mikeharder)
+
 ## 5.0.3 (2019-06-16)
 
 * Make empty.js a virtual module ([#224](https://github.com/rollup/rollup-plugin-node-resolve/pull/224) by @manucorporat)

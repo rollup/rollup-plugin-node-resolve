@@ -263,7 +263,7 @@ export default function nodeResolve ( options = {} ) {
 				})
 				.then(resolved => {
 					if ( resolved && packageBrowserField ) {
-						if ( packageBrowserField.hasOwnProperty(resolved) ) {
+						if ( Object.prototype.hasOwnProperty.call(packageBrowserField,resolved) ) {
 							if (!packageBrowserField[resolved]) {
 								browserMapCache.set(resolved, packageBrowserField);
 								return ES6_BROWSER_EMPTY;
