@@ -7,7 +7,7 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/register": "^7.4.4",
     "es5-ext": "^0.10.50",
-    "eslint": "^6.0.0",
+    "eslint": "^5.16.0",
     "mocha": "^6.1.4",
     "rollup": "^1.16.1",
     "rollup-plugin-babel": "^4.3.2",
