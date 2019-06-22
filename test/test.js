@@ -890,9 +890,10 @@ describe( 'rollup-plugin-node-resolve', function () {
 				'true-dep1',
 				'true-dep2',
 				'true-index',
-				'array-dep2',
-				'array-dep4',
-				'true-index'
+				'array-dep1',
+				'array-dep3',
+				'array-dep5',
+				'array-index'
 			]);
 			delete global.sideEffects;
 		}));
