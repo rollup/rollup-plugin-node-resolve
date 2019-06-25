@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.1.0 (2019-06-22)
+
+* Fix path fragment inputs ([#229](https://github.com/rollup/rollup-plugin-node-resolve/pull/229) by @bterlson)
+
 ## 5.0.4 (2019-06-22)
 
 * Treat sideEffects array as inclusion list ([#227](https://github.com/rollup/rollup-plugin-node-resolve/pull/227) by @mikeharder)
