@@ -130,6 +130,10 @@ export default function nodeResolve ( options = {} ) {
 	const extensions = options.extensions || DEFAULT_EXTS;
 	const packageInfoCache = new Map();
 
+	const shouldDedupe = typeof dedupe === 'function'
+		? dedupe
+		: importee => dedupe.includes(importee);
+
 	function getCachedPackageInfo (pkg, pkgPath) {
 		if (packageInfoCache.has(pkgPath)) {
 			return packageInfoCache.get(pkgPath);
@@ -216,7 +220,7 @@ export default function nodeResolve ( options = {} ) {
 
 			const basedir = importer ? dirname( importer ) : process.cwd();
 
-			if (dedupe.indexOf(importee) !== -1) {
+			if (shouldDedupe(importee)) {
 				importee = join(process.cwd(), 'node_modules', importee);
 			}
 
