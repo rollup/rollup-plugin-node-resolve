@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.2.0 (2019-06-29)
+
+* dedupe accepts a function ([#225](https://github.com/rollup/rollup-plugin-node-resolve/pull/225) by @manucorporat)
+
 ## 5.1.1 (2019-06-29)
 
 * Move Rollup version check to buildStart hook to avoid issues ([#232](https://github.com/rollup/rollup-plugin-node-resolve/pull/232) by @lukastaegert)
