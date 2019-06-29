@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.1.1 (2019-06-29)
+
+* Move Rollup version check to buildStart hook to avoid issues ([#232](https://github.com/rollup/rollup-plugin-node-resolve/pull/232) by @lukastaegert)
+
 ## 5.1.0 (2019-06-22)
 
 * Fix path fragment inputs ([#229](https://github.com/rollup/rollup-plugin-node-resolve/pull/229) by @bterlson)
