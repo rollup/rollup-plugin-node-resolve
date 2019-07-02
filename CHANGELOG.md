@@ -1,5 +1,9 @@
 # rollup-plugin-node-resolve changelog
 
+## 5.2.1 (unreleased)
+
+* add missing MIT license file ([#233](https://github.com/rollup/rollup-plugin-node-resolve/pull/233) by @kenjiO)
+
 ## 5.2.0 (2019-06-29)
 
 * dedupe accepts a function ([#225](https://github.com/rollup/rollup-plugin-node-resolve/pull/225) by @manucorporat)
