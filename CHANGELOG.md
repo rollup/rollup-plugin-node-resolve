@@ -3,6 +3,7 @@
 ## 5.2.1 (unreleased)
 
 * add missing MIT license file ([#233](https://github.com/rollup/rollup-plugin-node-resolve/pull/233) by @kenjiO)
+* Fix incorrect example of config ([#239](https://github.com/rollup/rollup-plugin-node-resolve/pull/240) by @myshov)
 * Fix typo in readme ([#240](https://github.com/rollup/rollup-plugin-node-resolve/pull/240) by @LinusU)
 
 ## 5.2.0 (2019-06-29)
