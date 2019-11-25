@@ -2,7 +2,7 @@ import {dirname, extname, join, normalize, resolve, sep} from 'path';
 import builtinList from 'builtin-modules';
 import resolveId from 'resolve';
 import isModule from 'is-module';
-import fs from 'fs';
+import fs, { realpathSync } from 'fs';
 import {createFilter} from 'rollup-pluginutils';
 import {peerDependencies} from '../package.json';
 
@@ -129,6 +129,7 @@ export default function nodeResolve ( options = {} ) {
 
 	const extensions = options.extensions || DEFAULT_EXTS;
 	const packageInfoCache = new Map();
+	const idToPackageInfo = new Map();
 
 	const shouldDedupe = typeof dedupe === 'function'
 		? dedupe
@@ -138,19 +139,47 @@ export default function nodeResolve ( options = {} ) {
 		if (packageInfoCache.has(pkgPath)) {
 			return packageInfoCache.get(pkgPath);
 		}
+
+		// browserify/resolve doesn't realpath paths returned in its packageFilter callback
+		if (!preserveSymlinks) {
+			pkgPath = realpathSync(pkgPath);
+		}
+
 		const pkgRoot = dirname( pkgPath );
+
+		const packageInfo = {
+			// copy as we are about to munge the `main` field of `pkg`.
+			packageJson: Object.assign({}, pkg),
+
+			// path to package.json file
+			packageJsonPath: pkgPath,
+			
+			// directory containing the package.json
+			root: pkgRoot,
+
+			// which main field was used during resolution of this module (main, module, or browser)
+			resolvedMainField: 'main',
+
+			// whether the browser map was used to resolve the entry point to this module
+			browserMappedMain: false,
+
+			// the entry point of the module with respect to the selected main field and any
+			// relevant browser mappings.
+			resolvedEntryPoint: ''
+		};
 
 		let overriddenMain = false;
 		for ( let i = 0; i < mainFields.length; i++ ) {
 			const field = mainFields[i];
 			if ( typeof pkg[ field ] === 'string' ) {
 				pkg[ 'main' ] = pkg[ field ];
+				packageInfo.resolvedMainField = field;
 				overriddenMain = true;
 				break;
 			}
 		}
 
-		const packageInfo = {
+		const internalPackageInfo = {
 			cachedPkg: pkg,
 			hasModuleSideEffects: alwaysNull,
 			hasPackageEntry: overriddenMain !== false || mainFields.indexOf( 'main' ) !== -1,
@@ -172,18 +201,29 @@ export default function nodeResolve ( options = {} ) {
 						}
 					}
 					return browser;
-				}, {})
+				}, {}),
+			packageInfo
 		};
+
+		const browserMap = internalPackageInfo.packageBrowserField;
+		if (useBrowserOverrides && typeof pkg['browser'] === 'object' && browserMap.hasOwnProperty(pkg.main)) {
+			packageInfo.resolvedEntryPoint = browserMap[pkg.main];
+			packageInfo.browserMappedMain = true;
+		} else {
+			// index.node is technically a valid default entrypoint as well...
+			packageInfo.resolvedEntryPoint = resolve(pkgRoot, pkg.main || 'index.js');
+			packageInfo.browserMappedMain = false;
+		}
 
 		const packageSideEffects = pkg['sideEffects'];
 		if (typeof packageSideEffects === 'boolean') {
-			packageInfo.hasModuleSideEffects = () => packageSideEffects;
+			internalPackageInfo.hasModuleSideEffects = () => packageSideEffects;
 		} else if (Array.isArray(packageSideEffects)) {
-			packageInfo.hasModuleSideEffects = createFilter(packageSideEffects, null, {resolve: pkgRoot});
+			internalPackageInfo.hasModuleSideEffects = createFilter(packageSideEffects, null, {resolve: pkgRoot});
 		}
 
-		packageInfoCache.set(pkgPath, packageInfo);
-		return packageInfo;
+		packageInfoCache.set(pkgPath, internalPackageInfo);
+		return internalPackageInfo;
 	}
 
 	let preserveSymlinks;
@@ -253,13 +293,15 @@ export default function nodeResolve ( options = {} ) {
 			let hasModuleSideEffects = alwaysNull;
 			let hasPackageEntry = true;
 			let packageBrowserField = false;
+			let packageInfo = undefined;
 
 			const resolveOptions = {
 				basedir,
 				packageFilter ( pkg, pkgPath ) {
 					let cachedPkg;
-					({cachedPkg, hasModuleSideEffects, hasPackageEntry, packageBrowserField} =
+					({packageInfo, cachedPkg, hasModuleSideEffects, hasPackageEntry, packageBrowserField} =
 						getCachedPackageInfo(pkg, pkgPath));
+					
 					return cachedPkg;
 				},
 				readFile: readFileCached,
@@ -297,7 +339,6 @@ export default function nodeResolve ( options = {} ) {
 			}
 
 			importSpecifierList.push(importee);
-
 			return resolveImportSpecifiers(
 				importSpecifierList,
 				Object.assign(resolveOptions, customResolveOptions)
@@ -321,6 +362,8 @@ export default function nodeResolve ( options = {} ) {
 					return resolved;
 				})
 				.then(resolved => {
+					idToPackageInfo.set(resolved, packageInfo);
+
 					if ( hasPackageEntry ) {
 						if (builtins.has(resolved) && preferBuiltins && isPreferBuiltinsSet) {
 							return null;
@@ -354,5 +397,9 @@ export default function nodeResolve ( options = {} ) {
 			}
 			return null;
 		},
+
+		getPackageInfoForId (id) {
+			return idToPackageInfo.get(id);
+		}
 	};
 }
