@@ -1,3 +1,7 @@
+# Moving
+
+We're in the process of moving this plugin to a new home. Please stand by...
+
 # rollup-plugin-node-resolve
 
 *This plugin used to be called rollup-plugin-npm*
