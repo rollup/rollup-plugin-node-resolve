@@ -1,6 +1,7 @@
-# Moving
+# Moved
 
-We're in the process of moving this plugin to a new home. Please stand by...
+This module has moved and is now available at [@rollup/plugin-node-resolve](https://github.com/rollup/plugins). Please update your dependencies. This repository is no longer maintained.
+
 
 # rollup-plugin-node-resolve
 
